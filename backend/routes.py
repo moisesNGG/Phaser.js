@@ -235,7 +235,8 @@ async def get_demos(level: Optional[str] = Query(None, description="Filtrar por 
 async def get_demo(demo_id: str):
     """Obtener una demo específica por ID"""
     try:
-        demo = await db.demos.find_one({"id": demo_id})
+        database = get_database()
+        demo = await database.demos.find_one({"id": demo_id})
         if not demo:
             raise HTTPException(status_code=404, detail="Demo no encontrada")
         return Demo(**demo)
@@ -249,8 +250,9 @@ async def get_demo(demo_id: str):
 async def save_score(score_data: ScoreCreate):
     """Guardar puntuación del juego"""
     try:
+        database = get_database()
         score = Score(**score_data.dict())
-        await db.scores.insert_one(score.dict())
+        await database.scores.insert_one(score.dict())
         return score
     
     except Exception as e:
@@ -260,8 +262,9 @@ async def save_score(score_data: ScoreCreate):
 async def get_leaderboard(limit: int = Query(10, description="Número de entradas a retornar")):
     """Obtener tabla de puntuaciones"""
     try:
+        database = get_database()
         # Obtener top scores ordenados por puntuación descendente
-        scores = await db.scores.find().sort("score", -1).limit(limit).to_list(limit)
+        scores = await database.scores.find().sort("score", -1).limit(limit).to_list(limit)
         
         leaderboard = []
         for idx, score_doc in enumerate(scores, 1):
@@ -283,8 +286,9 @@ async def get_leaderboard(limit: int = Query(10, description="Número de entrada
 async def get_game_stats():
     """Obtener estadísticas generales del juego"""
     try:
+        database = get_database()
         # Contar total de juegos
-        total_games = await db.scores.count_documents({})
+        total_games = await database.scores.count_documents({})
         
         if total_games == 0:
             return GameStats(
@@ -306,7 +310,7 @@ async def get_game_stats():
             }
         ]
         
-        result = await db.scores.aggregate(pipeline).to_list(1)
+        result = await database.scores.aggregate(pipeline).to_list(1)
         stats_data = result[0] if result else {}
         
         # Encontrar el nivel más jugado
@@ -330,7 +334,8 @@ async def get_game_stats():
 async def delete_demo(demo_id: str):
     """Eliminar una demo (para propósitos de administración)"""
     try:
-        result = await db.demos.delete_one({"id": demo_id})
+        database = get_database()
+        result = await database.demos.delete_one({"id": demo_id})
         if result.deleted_count == 0:
             raise HTTPException(status_code=404, detail="Demo no encontrada")
         return {"message": "Demo eliminada exitosamente"}
@@ -344,8 +349,9 @@ async def delete_demo(demo_id: str):
 async def create_demo(demo_data: DemoCreate):
     """Crear nueva demo (para propósitos de administración)"""
     try:
+        database = get_database()
         demo = Demo(**demo_data.dict())
-        await db.demos.insert_one(demo.dict())
+        await database.demos.insert_one(demo.dict())
         return demo
     
     except Exception as e:
