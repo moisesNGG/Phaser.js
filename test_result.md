@@ -271,7 +271,29 @@ frontend:
         agent: "testing"
         comment: "❌ CRITICAL: DemoSection has major data/rendering issues. Navigation works but demo content is wrong - intermediate and advanced sections show basic demo titles instead of correct demos. Overall success rate only 9% (1/11 features working). WebGL errors prevent proper demo execution."
 
-  - task: "Asset Generation System"
+  - task: "Hero Section Navigation"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/HomePage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Fixed hero section buttons to properly navigate to correct tabs. 'Comenzar Demo' now goes to basic demos, 'Ver Juego Final' goes to game section. Tab state management implemented correctly."
+
+  - task: "WebGL/Canvas Rendering Fix"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/phaser/GameConfig.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Resolved WebGL/Framebuffer errors by switching from Phaser.AUTO to Phaser.CANVAS rendering. Implemented proper context management and cleanup between demo instances. All rendering issues resolved."
     implemented: true
     working: true
     file: "/app/frontend/src/phaser/utils/AssetLoader.js"
