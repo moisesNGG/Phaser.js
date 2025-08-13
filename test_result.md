@@ -111,11 +111,14 @@ backend:
     file: "/app/backend/routes.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "API endpoints completamente implementados con datos de demos, puntuaciones, y estadísticas"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: All demo endpoints working perfectly - GET /api/demos (9 demos), filtering by level (basic/intermediate/advanced), GET specific demo by ID, POST new demo, DELETE demo. All responses have correct structure and data."
 
   - task: "MongoDB models"
     implemented: true
@@ -123,11 +126,14 @@ backend:
     file: "/app/backend/models.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Modelos para Demo, Score, LeaderboardEntry y GameStats implementados"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: All models working correctly - Demo, Score, LeaderboardEntry, GameStats all validate and serialize properly. UUID generation working."
 
   - task: "FastAPI server configuration"
     implemented: true
@@ -135,11 +141,26 @@ backend:
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Servidor configurado con CORS, rutas API y conexión MongoDB"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Server fully functional - Health check endpoint working, CORS enabled, MongoDB connection established, all API routes properly mounted with /api prefix. Fixed database connection issue in routes.py."
+
+  - task: "Score system and leaderboard"
+    implemented: true
+    working: true
+    file: "/app/backend/routes.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Complete score system working - POST /api/scores saves scores correctly, GET /api/scores/leaderboard returns properly ordered leaderboard with ranking, limit parameter works, GET /api/stats provides accurate game statistics (5 games, avg: 2900.0, high: 4100)."
 
 frontend:
   - task: "Space Shooter Game"
