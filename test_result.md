@@ -343,14 +343,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Space Shooter Game"
-    - "GameCanvas Integration"
-    - "Intermediate Phaser Demos"
     - "Advanced Phaser Demos"
   stuck_tasks:
-    - "Space Shooter Game"
-    - "GameCanvas Integration"
-    - "Intermediate Phaser Demos"
     - "Advanced Phaser Demos"
   test_all: false
   test_priority: "stuck_first"
