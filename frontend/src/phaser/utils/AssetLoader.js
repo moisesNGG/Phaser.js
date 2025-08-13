@@ -30,56 +30,71 @@ export class AssetLoader {
 
     try {
       // Crear sprite del jugador (nave triangular mejorada)
-      const playerGraphics = this.scene.add.graphics();
-      playerGraphics.fillStyle(0x00ff00);
-      playerGraphics.fillTriangle(16, 0, 0, 28, 32, 28);
-      playerGraphics.fillStyle(0x0080ff);
-      playerGraphics.fillRect(12, 24, 8, 8);
-      playerGraphics.fillStyle(0xffffff);
-      playerGraphics.fillCircle(16, 16, 3);
-      playerGraphics.generateTexture('player', 32, 32);
-      playerGraphics.destroy();
+      if (!this.scene.textures.exists('player') && !window.phaserTexturesCreated.has('player')) {
+        const playerGraphics = this.scene.add.graphics();
+        playerGraphics.fillStyle(0x00ff00);
+        playerGraphics.fillTriangle(16, 0, 0, 28, 32, 28);
+        playerGraphics.fillStyle(0x0080ff);
+        playerGraphics.fillRect(12, 24, 8, 8);
+        playerGraphics.fillStyle(0xffffff);
+        playerGraphics.fillCircle(16, 16, 3);
+        playerGraphics.generateTexture('player', 32, 32);
+        playerGraphics.destroy();
+        window.phaserTexturesCreated.add('player');
+      }
 
       // Crear sprite de enemigo (nave roja)
-      const enemyGraphics = this.scene.add.graphics();
-      enemyGraphics.fillStyle(0xff0000);
-      enemyGraphics.fillRect(0, 0, 24, 24);
-      enemyGraphics.fillStyle(0xff6666);
-      enemyGraphics.fillRect(4, 4, 16, 16);
-      enemyGraphics.fillStyle(0x660000);
-      enemyGraphics.fillCircle(12, 12, 4);
-      enemyGraphics.generateTexture('enemy', 24, 24);
-      enemyGraphics.destroy();
+      if (!this.scene.textures.exists('enemy') && !window.phaserTexturesCreated.has('enemy')) {
+        const enemyGraphics = this.scene.add.graphics();
+        enemyGraphics.fillStyle(0xff0000);
+        enemyGraphics.fillRect(0, 0, 24, 24);
+        enemyGraphics.fillStyle(0xff6666);
+        enemyGraphics.fillRect(4, 4, 16, 16);
+        enemyGraphics.fillStyle(0x660000);
+        enemyGraphics.fillCircle(12, 12, 4);
+        enemyGraphics.generateTexture('enemy', 24, 24);
+        enemyGraphics.destroy();
+        window.phaserTexturesCreated.add('enemy');
+      }
 
       // Crear sprite de bala (proyectil brillante)
-      const bulletGraphics = this.scene.add.graphics();
-      bulletGraphics.fillStyle(0xffff00);
-      bulletGraphics.fillCircle(4, 4, 4);
-      bulletGraphics.fillStyle(0xffffff);
-      bulletGraphics.fillCircle(4, 4, 2);
-      bulletGraphics.generateTexture('bullet', 8, 8);
-      bulletGraphics.destroy();
+      if (!this.scene.textures.exists('bullet') && !window.phaserTexturesCreated.has('bullet')) {
+        const bulletGraphics = this.scene.add.graphics();
+        bulletGraphics.fillStyle(0xffff00);
+        bulletGraphics.fillCircle(4, 4, 4);
+        bulletGraphics.fillStyle(0xffffff);
+        bulletGraphics.fillCircle(4, 4, 2);
+        bulletGraphics.generateTexture('bullet', 8, 8);
+        bulletGraphics.destroy();
+        window.phaserTexturesCreated.add('bullet');
+      }
 
       // Crear sprite de asteroide (roca detallada)
-      const asteroidGraphics = this.scene.add.graphics();
-      asteroidGraphics.fillStyle(0x8B4513);
-      asteroidGraphics.fillCircle(20, 20, 18);
-      asteroidGraphics.fillStyle(0x654321);
-      asteroidGraphics.fillCircle(15, 15, 6);
-      asteroidGraphics.fillCircle(25, 25, 8);
-      asteroidGraphics.fillStyle(0x5D4037);
-      asteroidGraphics.fillCircle(22, 12, 4);
-      asteroidGraphics.generateTexture('asteroid', 40, 40);
-      asteroidGraphics.destroy();
+      if (!this.scene.textures.exists('asteroid') && !window.phaserTexturesCreated.has('asteroid')) {
+        const asteroidGraphics = this.scene.add.graphics();
+        asteroidGraphics.fillStyle(0x8B4513);
+        asteroidGraphics.fillCircle(20, 20, 18);
+        asteroidGraphics.fillStyle(0x654321);
+        asteroidGraphics.fillCircle(15, 15, 6);
+        asteroidGraphics.fillCircle(25, 25, 8);
+        asteroidGraphics.fillStyle(0x5D4037);
+        asteroidGraphics.fillCircle(22, 12, 4);
+        asteroidGraphics.generateTexture('asteroid', 40, 40);
+        asteroidGraphics.destroy();
+        window.phaserTexturesCreated.add('asteroid');
+      }
 
       // Crear partícula mejorada (con brillo)
-      const particleGraphics = this.scene.add.graphics();
-      particleGraphics.fillStyle(0xffffff);
-      particleGraphics.fillCircle(2, 2, 2);
-      particleGraphics.fillStyle(0xffff00);
-      particleGraphics.fillCircle(2, 2, 1);
-      particleGraphics.generateTexture('particle', 4, 4);
-      particleGraphics.destroy();
+      if (!this.scene.textures.exists('particle') && !window.phaserTexturesCreated.has('particle')) {
+        const particleGraphics = this.scene.add.graphics();
+        particleGraphics.fillStyle(0xffffff);
+        particleGraphics.fillCircle(2, 2, 2);
+        particleGraphics.fillStyle(0xffff00);
+        particleGraphics.fillCircle(2, 2, 1);
+        particleGraphics.generateTexture('particle', 4, 4);
+        particleGraphics.destroy();
+        window.phaserTexturesCreated.add('particle');
+      }
 
       // Crear fondo de estrellas mejorado
       this.createStarField();
