@@ -114,7 +114,7 @@ const HomePage = () => {
 
       {/* Demo Sections */}
       <div className="container mx-auto px-6 py-16">
-        <Tabs defaultValue="basico" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 bg-black/20 backdrop-blur-sm">
             <TabsTrigger value="basico" className="data-[state=active]:bg-cyan-600">
               Básico
