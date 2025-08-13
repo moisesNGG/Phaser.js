@@ -283,6 +283,9 @@ class SpaceShooterScene extends Phaser.Scene {
     // Update score
     this.score += 100 * this.level;
     
+    // Emit score update event (for external UI)
+    this.game.events.emit('score-update', this.score);
+    
     // Play explosion sound
     if (this.explosionSound) {
       this.explosionSound.play();
@@ -301,6 +304,9 @@ class SpaceShooterScene extends Phaser.Scene {
     // Update score
     this.score += 50 * this.level;
     
+    // Emit score update event (for external UI)
+    this.game.events.emit('score-update', this.score);
+    
     // Play explosion sound
     if (this.explosionSound) {
       this.explosionSound.play();
@@ -316,6 +322,9 @@ class SpaceShooterScene extends Phaser.Scene {
     
     // Reduce lives
     this.lives--;
+    
+    // Emit lives update event (for external UI)
+    this.game.events.emit('lives-update', this.lives);
     
     // Player invincibility
     this.player.setTint(0xff0000);
