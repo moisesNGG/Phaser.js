@@ -385,6 +385,10 @@ class SpaceShooterScene extends Phaser.Scene {
       this.level = newLevel;
       this.lives++; // Bonus life each level
       
+      // Emit level update event (for external UI)
+      this.game.events.emit('level-update', this.level);
+      this.game.events.emit('lives-update', this.lives);
+      
       // Show level up message
       const levelUpText = this.add.text(400, 300, `¡NIVEL ${this.level}!`, {
         fontSize: '48px',
