@@ -4,27 +4,16 @@ import { AssetLoader } from '../utils/AssetLoader';
 class AudioScene extends Phaser.Scene {
   constructor() {
     super({ key: 'AudioScene' });
-    this.musicVolume = 0.5;
-    this.sfxVolume = 0.7;
-    this.bgMusic = null;
     this.sounds = {};
+    this.music = null;
+    this.soundButtons = [];
+    this.musicPlaying = false;
+    this.masterVolume = 0.5;
   }
 
   preload() {
     this.assetLoader = new AssetLoader(this);
-    this.assetLoader.loadBasicAssets();
-    
-    // En un entorno real, cargaríamos archivos de audio
-    // Por ahora creamos objetos de audio mock para la demostración
-    this.createMockAudio();
-  }
-
-  createMockAudio() {
-    // Simular la carga de archivos de audio
-    // En una implementación real, usarías:
-    // this.load.audio('bgMusic', 'assets/music/background.mp3');
-    
-    console.log('Creating mock audio objects for demo...');
+    this.assetLoader.loadAdvancedAssets();
   }
 
   create() {
@@ -32,429 +21,291 @@ class AudioScene extends Phaser.Scene {
     this.add.image(400, 300, 'starfield');
 
     // Título
-    this.add.text(400, 30, 'Demo: Sistema de Audio', {
+    this.add.text(400, 50, 'Demo: Sistema de Audio', {
       fontSize: '24px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
-    // Crear controles de audio visuales
-    this.createAudioControls();
-    
-    // Crear efectos sonoros interactivos
-    this.createSoundEffects();
-    
+    // Inicializar sonidos (mock objects con efectos visuales)
+    this.initializeSounds();
+
     // Crear visualizador de audio
     this.createAudioVisualizer();
 
-    // Información sobre el sistema de audio
-    this.add.text(400, 500, 'Phaser soporta Web Audio API para efectos avanzados', {
+    // Crear controles de audio
+    this.createAudioControls();
+
+    // Información
+    this.add.text(400, 450, 'Haz clic en los botones para reproducir diferentes efectos de sonido', {
       fontSize: '16px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
-    this.add.text(400, 525, 'Haz click en los botones para probar diferentes sonidos', {
+    this.add.text(400, 475, 'En una implementación real, aquí se cargarían archivos de audio WAV/MP3', {
       fontSize: '14px',
       fontFamily: 'Arial',
       fill: '#cccccc'
     }).setOrigin(0.5);
 
-    // Inicializar sonidos mock
-    this.initializeMockSounds();
+    // Crear efectos visuales para simular audio
+    this.createVisualEffects();
   }
 
-  initializeMockSounds() {
-    // Crear objetos de sonido mock que simulan la funcionalidad real
+  initializeSounds() {
+    // Simular diferentes tipos de sonidos con objetos mock
     this.sounds = {
-      bgMusic: {
-        isPlaying: false,
-        volume: this.musicVolume,
-        play: () => {
-          console.log('🎵 Playing background music...');
-          this.sounds.bgMusic.isPlaying = true;
-          this.updateMusicButton();
-          this.startMusicVisualization();
-        },
-        pause: () => {
-          console.log('⏸️ Pausing background music...');
-          this.sounds.bgMusic.isPlaying = false;
-          this.updateMusicButton();
-          this.stopMusicVisualization();
-        },
-        setVolume: (vol) => {
-          this.sounds.bgMusic.volume = vol;
-          console.log(`🔊 Music volume: ${vol}`);
-        }
+      shoot: { 
+        volume: 0.3, 
+        color: 0x00ff00, 
+        name: 'Disparo',
+        frequency: 800 
       },
-      shoot: {
-        play: () => {
-          console.log('💥 Pew! Laser sound');
-          this.createSoundEffect('shoot', 0x00ffff);
-        }
+      explosion: { 
+        volume: 0.7, 
+        color: 0xff0000, 
+        name: 'Explosión',
+        frequency: 200 
       },
-      explosion: {
-        play: () => {
-          console.log('💥 BOOM! Explosion sound');
-          this.createSoundEffect('explosion', 0xff4400);
-        }
+      powerup: { 
+        volume: 0.5, 
+        color: 0xffff00, 
+        name: 'Power-up',
+        frequency: 1200 
       },
-      powerup: {
-        play: () => {
-          console.log('✨ Power-up collected!');
-          this.createSoundEffect('powerup', 0x44ff00);
-        }
+      ambient: { 
+        volume: 0.2, 
+        color: 0x0066ff, 
+        name: 'Ambiente',
+        frequency: 400 
       }
+    };
+
+    this.music = {
+      volume: 0.3,
+      color: 0xff00ff,
+      name: 'Música de fondo',
+      isPlaying: false
     };
   }
 
-  createAudioControls() {
-    // Panel de control de música
-    const musicPanel = this.add.rectangle(200, 150, 300, 200, 0x333333, 0.8);
-    musicPanel.setStrokeStyle(2, 0x666666);
-
-    this.add.text(200, 80, 'Control de Música', {
-      fontSize: '18px',
-      fontFamily: 'Arial',
-      fill: '#ffffff'
-    }).setOrigin(0.5);
-
-    // Botón Play/Pause música
-    this.musicButton = this.add.rectangle(200, 120, 100, 30, 0x006600);
-    this.musicButton.setInteractive();
-    this.musicButtonText = this.add.text(200, 120, 'PLAY', {
-      fontSize: '14px',
-      fontFamily: 'Arial',
-      fill: '#ffffff'
-    }).setOrigin(0.5);
-
-    this.musicButton.on('pointerdown', () => {
-      if (this.sounds.bgMusic.isPlaying) {
-        this.sounds.bgMusic.pause();
-      } else {
-        this.sounds.bgMusic.play();
-      }
-    });
-
-    // Control de volumen de música
-    this.add.text(200, 160, 'Volumen Música:', {
-      fontSize: '12px',
-      fontFamily: 'Arial',
-      fill: '#ffffff'
-    }).setOrigin(0.5);
-
-    this.createVolumeSlider(200, 180, (value) => {
-      this.musicVolume = value;
-      this.sounds.bgMusic.setVolume(value);
-    });
-
-    // Control de volumen de efectos
-    this.add.text(200, 210, 'Volumen SFX:', {
-      fontSize: '12px',
-      fontFamily: 'Arial',
-      fill: '#ffffff'
-    }).setOrigin(0.5);
-
-    this.createVolumeSlider(200, 230, (value) => {
-      this.sfxVolume = value;
-      console.log(`🔊 SFX volume: ${value}`);
-    });
-  }
-
-  createVolumeSlider(x, y, callback) {
-    // Crear barra de volumen visual
-    const sliderBg = this.add.rectangle(x, y, 100, 6, 0x444444);
-    const sliderFill = this.add.rectangle(x - 25, y, 50, 6, 0x00aaff);
-    const sliderHandle = this.add.circle(x, y, 8, 0xffffff);
-
-    sliderHandle.setInteractive();
+  createAudioVisualizer() {
+    // Crear un visualizador de audio simulado
+    this.visualizer = this.add.graphics();
+    this.visualizerBars = [];
     
-    this.input.setDraggable(sliderHandle);
+    for (let i = 0; i < 32; i++) {
+      this.visualizerBars.push({
+        x: 200 + i * 12,
+        y: 300,
+        height: 0,
+        targetHeight: 0
+      });
+    }
 
-    sliderHandle.on('drag', (pointer, dragX) => {
-      const minX = x - 50;
-      const maxX = x + 50;
-      const clampedX = Phaser.Math.Clamp(dragX, minX, maxX);
-      
-      sliderHandle.x = clampedX;
-      
-      const fillWidth = (clampedX - minX);
-      sliderFill.width = fillWidth;
-      sliderFill.x = minX + fillWidth / 2;
-      
-      const volume = (clampedX - minX) / 100;
-      callback(volume);
-    });
-  }
-
-  createSoundEffects() {
-    // Panel de efectos de sonido
-    const sfxPanel = this.add.rectangle(600, 200, 300, 300, 0x333333, 0.8);
-    sfxPanel.setStrokeStyle(2, 0x666666);
-
-    this.add.text(600, 80, 'Efectos de Sonido', {
+    // Título del visualizador
+    this.add.text(400, 260, 'Visualizador de Audio', {
       fontSize: '18px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
+  }
 
-    // Botones de efectos de sonido
-    const soundButtons = [
-      { name: 'Disparo', key: 'shoot', color: 0x0066cc, y: 120 },
-      { name: 'Explosión', key: 'explosion', color: 0xcc3300, y: 170 },
-      { name: 'Power-up', key: 'powerup', color: 0x00cc66, y: 220 },
-    ];
+  createAudioControls() {
+    const buttonY = 380;
+    const buttonSpacing = 120;
+    let buttonIndex = 0;
 
-    soundButtons.forEach(btn => {
-      const button = this.add.rectangle(600, btn.y, 120, 30, btn.color);
-      button.setInteractive();
+    // Botones para cada efecto de sonido
+    Object.entries(this.sounds).forEach(([key, sound]) => {
+      const x = 200 + buttonIndex * buttonSpacing;
       
-      const buttonText = this.add.text(600, btn.y, btn.name, {
+      // Botón
+      const button = this.add.rectangle(x, buttonY, 100, 40, sound.color, 0.7)
+        .setInteractive()
+        .on('pointerdown', () => this.playSound(key))
+        .on('pointerover', () => button.setAlpha(0.9))
+        .on('pointerout', () => button.setAlpha(0.7));
+
+      // Texto del botón
+      this.add.text(x, buttonY, sound.name, {
         fontSize: '12px',
         fontFamily: 'Arial',
         fill: '#ffffff'
       }).setOrigin(0.5);
 
-      button.on('pointerdown', () => {
-        this.sounds[btn.key].play();
-        
-        // Efecto visual del botón
-        this.tweens.add({
-          targets: button,
-          scaleX: 0.9,
-          scaleY: 0.9,
-          duration: 100,
-          yoyo: true,
-          ease: 'Power2'
-        });
-      });
-
-      button.on('pointerover', () => {
-        button.setFillStyle(Phaser.Display.Color.GetColor32(
-          Phaser.Display.Color.Interpolate.ColorWithColor(
-            Phaser.Display.Color.IntegerToColor(btn.color),
-            Phaser.Display.Color.IntegerToColor(0xffffff),
-            10,
-            2
-          )
-        ));
-      });
-
-      button.on('pointerout', () => {
-        button.setFillStyle(btn.color);
-      });
+      buttonIndex++;
     });
 
-    // Instrucciones de audio 3D
-    this.add.text(600, 270, 'Audio 3D Espacial:', {
+    // Botón de música
+    this.musicButton = this.add.rectangle(400, 420, 150, 40, this.music.color, 0.7)
+      .setInteractive()
+      .on('pointerdown', () => this.toggleMusic())
+      .on('pointerover', () => this.musicButton.setAlpha(0.9))
+      .on('pointerout', () => this.musicButton.setAlpha(0.7));
+
+    this.musicButtonText = this.add.text(400, 420, 'Reproducir Música', {
       fontSize: '14px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
-    this.add.text(600, 290, 'Haz click en cualquier lugar', {
-      fontSize: '12px',
-      fontFamily: 'Arial',
-      fill: '#cccccc'
-    }).setOrigin(0.5);
-
-    // Audio espacial - sonidos basados en posición
-    this.input.on('pointerdown', (pointer) => {
-      this.play3DAudio(pointer.x, pointer.y);
-    });
-  }
-
-  createAudioVisualizer() {
-    // Crear visualizador de frecuencias mock
-    this.visualizerBars = [];
-    const barCount = 16;
-    const barWidth = 300 / barCount;
-
-    for (let i = 0; i < barCount; i++) {
-      const bar = this.add.rectangle(
-        250 + i * barWidth,
-        400,
-        barWidth - 2,
-        10,
-        0x00ff88
-      );
-      this.visualizerBars.push(bar);
-    }
-
-    this.add.text(400, 350, 'Visualizador de Audio', {
+    // Control de volumen
+    this.add.text(400, 500, 'Volumen Master:', {
       fontSize: '16px',
       fontFamily: 'Arial',
-      fill: '#00ff88'
+      fill: '#ffffff'
     }).setOrigin(0.5);
 
-    this.add.text(400, 450, 'Simula análisis de frecuencias en tiempo real', {
-      fontSize: '12px',
+    this.volumeBar = this.add.rectangle(400, 525, 200, 20, 0x333333)
+      .setInteractive()
+      .on('pointerdown', (pointer) => this.setVolume(pointer));
+
+    this.volumeIndicator = this.add.rectangle(300, 525, 100, 20, 0x00ff00);
+
+    this.volumeText = this.add.text(400, 550, `${Math.round(this.masterVolume * 100)}%`, {
+      fontSize: '14px',
       fontFamily: 'Arial',
-      fill: '#888888'
+      fill: '#ffffff'
     }).setOrigin(0.5);
   }
 
-  startMusicVisualization() {
-    // Animación del visualizador cuando la música está sonando
-    this.musicVisualizerTween = this.time.addEvent({
-      delay: 100,
-      callback: this.updateVisualizer,
-      callbackScope: this,
-      loop: true
-    });
-  }
+  playSound(soundKey) {
+    const sound = this.sounds[soundKey];
+    if (!sound) return;
 
-  stopMusicVisualization() {
-    if (this.musicVisualizerTween) {
-      this.musicVisualizerTween.remove();
-    }
+    // Simular reproducción de sonido con efectos visuales
+    this.createSoundEffect(sound);
     
-    // Resetear barras del visualizador
-    this.visualizerBars.forEach(bar => {
-      bar.scaleY = 0.1;
-    });
+    // Actualizar visualizador
+    this.updateVisualizer(sound.frequency);
+
+    // En una implementación real:
+    // this.sound.play(soundKey, { volume: sound.volume * this.masterVolume });
   }
 
-  updateVisualizer() {
-    // Simular datos de frecuencia
-    this.visualizerBars.forEach((bar, index) => {
-      const height = Math.random() * 50 + 5;
-      const targetScaleY = height / 10;
-      
-      this.tweens.add({
-        targets: bar,
-        scaleY: targetScaleY,
-        duration: 100,
-        ease: 'Power1'
-      });
-      
-      // Cambiar color basado en la intensidad
-      const intensity = height / 55;
-      const color = Phaser.Display.Color.Interpolate.ColorWithColor(
-        { r: 0, g: 255, b: 136 },
-        { r: 255, g: 100, b: 0 },
-        100,
-        Math.floor(intensity * 100)
-      );
-      
-      bar.setFillStyle(Phaser.Display.Color.GetColor32(color));
-    });
-  }
-
-  updateMusicButton() {
-    if (this.sounds.bgMusic.isPlaying) {
-      this.musicButton.setFillStyle(0xcc3300);
-      this.musicButtonText.setText('PAUSE');
+  toggleMusic() {
+    this.musicPlaying = !this.musicPlaying;
+    
+    if (this.musicPlaying) {
+      this.musicButtonText.setText('Detener Música');
+      this.startMusicVisualization();
+      // En implementación real: this.sound.play('bgMusic', { loop: true, volume: this.music.volume * this.masterVolume });
     } else {
-      this.musicButton.setFillStyle(0x006600);
-      this.musicButtonText.setText('PLAY');
+      this.musicButtonText.setText('Reproducir Música');
+      this.stopMusicVisualization();
+      // En implementación real: this.sound.stopByKey('bgMusic');
     }
   }
 
-  play3DAudio(x, y) {
-    // Simular audio 3D basado en la posición
-    const centerX = 400;
-    const centerY = 300;
-    
-    const distance = Phaser.Math.Distance.Between(x, y, centerX, centerY);
-    const maxDistance = 300;
-    const volume = 1 - Math.min(distance / maxDistance, 1);
-    
-    // Determinar pan (izquierda/derecha) basado en posición X
-    const pan = (x - centerX) / centerX; // -1 (izquierda) a 1 (derecha)
-    
-    console.log(`🎵 3D Audio - Volume: ${volume.toFixed(2)}, Pan: ${pan.toFixed(2)}`);
-    
-    // Crear efecto visual para mostrar el audio espacial
-    this.createSpatialAudioEffect(x, y, volume);
-  }
+  createSoundEffect(sound) {
+    // Crear efecto visual que representa el sonido
+    const effectSprite = this.add.image(400, 200, 'particle');
+    effectSprite.setScale(10);
+    effectSprite.setTint(sound.color);
+    effectSprite.setAlpha(0.8);
 
-  createSpatialAudioEffect(x, y, volume) {
-    const circle = this.add.circle(x, y, 5, 0x00aaff, 0.8);
-    const maxScale = volume * 10;
-    
     this.tweens.add({
-      targets: circle,
-      scaleX: maxScale,
-      scaleY: maxScale,
+      targets: effectSprite,
+      scaleX: 20,
+      scaleY: 20,
       alpha: 0,
-      duration: 800,
+      duration: 500,
       ease: 'Power2',
-      onComplete: () => {
-        circle.destroy();
-      }
+      onComplete: () => effectSprite.destroy()
     });
 
-    // Mostrar información del audio 3D
-    const infoText = this.add.text(x, y - 30, `Vol: ${(volume * 100).toFixed(0)}%`, {
-      fontSize: '12px',
+    // Texto del nombre del sonido
+    const soundText = this.add.text(400, 200, sound.name, {
+      fontSize: '20px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
     this.tweens.add({
-      targets: infoText,
-      y: infoText.y - 20,
+      targets: soundText,
+      y: 150,
       alpha: 0,
-      duration: 1000,
-      onComplete: () => {
-        infoText.destroy();
-      }
+      duration: 800,
+      ease: 'Power1',
+      onComplete: () => soundText.destroy()
     });
   }
 
-  createSoundEffect(soundType, color) {
-    // Crear efecto visual para representar el sonido
-    const effectX = Phaser.Math.Between(100, 700);
-    const effectY = Phaser.Math.Between(150, 400);
+  updateVisualizer(frequency) {
+    // Simular barras del visualizador basadas en la frecuencia
+    this.visualizerBars.forEach((bar, index) => {
+      const amplitude = Math.sin((frequency + index * 50) * 0.01) * 50 + 50;
+      bar.targetHeight = amplitude * this.masterVolume;
+    });
+  }
+
+  startMusicVisualization() {
+    this.musicVisualizationTimer = this.time.addEvent({
+      delay: 100,
+      callback: () => {
+        if (this.musicPlaying) {
+          // Crear patrón de visualización continua para música
+          const baseFreq = 300 + Math.sin(this.time.now * 0.005) * 200;
+          this.updateVisualizer(baseFreq);
+        }
+      },
+      loop: true
+    });
+  }
+
+  stopMusicVisualization() {
+    if (this.musicVisualizationTimer) {
+      this.musicVisualizationTimer.remove();
+    }
     
-    // Ondas de sonido visuales
-    for (let i = 0; i < 3; i++) {
-      const wave = this.add.graphics();
-      wave.lineStyle(2, color, 0.8);
-      wave.strokeCircle(effectX, effectY, 10 + i * 5);
-      
-      this.tweens.add({
-        targets: wave,
-        scaleX: 4 + i,
-        scaleY: 4 + i,
-        alpha: 0,
-        duration: 600 + i * 200,
-        ease: 'Power2',
-        onComplete: () => {
-          wave.destroy();
-        }
-      });
-    }
+    // Resetear visualizador
+    this.visualizerBars.forEach(bar => {
+      bar.targetHeight = 0;
+    });
+  }
 
-    // Partículas de sonido
-    for (let i = 0; i < 6; i++) {
-      const particle = this.add.graphics();
-      particle.fillStyle(color);
-      particle.fillCircle(0, 0, 3);
-      particle.x = effectX;
-      particle.y = effectY;
+  setVolume(pointer) {
+    const localX = pointer.x - 300; // Ajustar por posición del control
+    this.masterVolume = Phaser.Math.Clamp(localX / 200, 0, 1);
+    
+    // Actualizar indicador visual
+    this.volumeIndicator.width = this.masterVolume * 200;
+    this.volumeText.setText(`${Math.round(this.masterVolume * 100)}%`);
+  }
 
-      const angle = (i / 6) * Math.PI * 2;
-      const distance = 30;
-
-      this.tweens.add({
-        targets: particle,
-        x: effectX + Math.cos(angle) * distance,
-        y: effectY + Math.sin(angle) * distance,
-        alpha: 0,
-        duration: 400,
-        ease: 'Power2',
-        onComplete: () => {
-          particle.destroy();
-        }
-      });
-    }
+  createVisualEffects() {
+    // Crear ondas de sonido visuales de fondo
+    this.soundWaves = this.add.graphics();
   }
 
   update() {
-    // El sistema de audio funciona principalmente a través de eventos
-    // Aquí podríamos actualizar efectos de audio continuos si fuera necesario
+    // Actualizar visualizador de audio
+    this.visualizer.clear();
+    this.visualizer.fillStyle(0x00ff00, 0.8);
+
+    this.visualizerBars.forEach(bar => {
+      // Interpolar suavemente hacia la altura objetivo
+      bar.height = Phaser.Math.Linear(bar.height, bar.targetHeight, 0.1);
+      
+      if (bar.height > 1) {
+        this.visualizer.fillRect(bar.x - 4, bar.y - bar.height, 8, bar.height);
+      }
+    });
+
+    // Dibujar ondas de sonido si la música está reproduciéndose
+    if (this.musicPlaying) {
+      this.soundWaves.clear();
+      this.soundWaves.lineStyle(2, 0xff00ff, 0.3);
+      
+      for (let i = 0; i < 3; i++) {
+        const radius = 50 + i * 30 + Math.sin(this.time.now * 0.005 + i) * 10;
+        this.soundWaves.strokeCircle(400, 200, radius);
+      }
+    } else {
+      this.soundWaves.clear();
+    }
   }
 }
 
