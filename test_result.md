@@ -225,15 +225,18 @@ frontend:
 
   - task: "GameCanvas Integration"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/src/components/GameCanvas.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "GameCanvas actualizado para ejecutar Phaser games reales con controles funcionales"
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL: GameCanvas has major WebGL/Framebuffer issues. Application shows red error screen with 'Uncaught runtime errors'. Found 1 canvas element but rendering fails with WebGL errors."
 
   - task: "DemoSection Integration"
     implemented: true
