@@ -73,16 +73,30 @@ export class AssetLoader {
     this.createStarField();
   }
 
-  // Crear campo de estrellas animado
+  // Crear campo de estrellas animado mejorado
   createStarField() {
     const graphics = this.scene.add.graphics();
+    
+    // Fondo degradado
+    graphics.fillGradientStyle(0x000428, 0x004e92, 0x000428, 0x004e92, 0.8);
+    graphics.fillRect(0, 0, 800, 600);
+    
     graphics.fillStyle(0xffffff);
     
-    // Generar estrellas aleatorias
-    for (let i = 0; i < 200; i++) {
+    // Generar estrellas de diferentes tamaños
+    for (let i = 0; i < 150; i++) {
       const x = Math.random() * 800;
       const y = Math.random() * 600;
-      const size = Math.random() * 2 + 0.5;
+      const size = Math.random() * 1.5 + 0.5;
+      graphics.fillCircle(x, y, size);
+    }
+    
+    // Estrellas más brillantes
+    graphics.fillStyle(0xffffaa);
+    for (let i = 0; i < 50; i++) {
+      const x = Math.random() * 800;
+      const y = Math.random() * 600;
+      const size = Math.random() * 2 + 1;
       graphics.fillCircle(x, y, size);
     }
     
