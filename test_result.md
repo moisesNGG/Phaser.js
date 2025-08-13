@@ -195,15 +195,18 @@ frontend:
 
   - task: "Intermediate Phaser Demos"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/src/phaser/scenes/"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "AnimationScene, CollisionScene, AudioScene implementadas"
+      - working: false
+        agent: "testing"
+        comment: "❌ FAILED: Intermediate demos section has issues. Found 3 demo cards but play buttons not found for demos. Navigation to section works but demo execution fails."
 
   - task: "Advanced Phaser Demos"
     implemented: true
