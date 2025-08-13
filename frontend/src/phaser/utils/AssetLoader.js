@@ -84,33 +84,67 @@ export class AssetLoader {
 
   // Crear campo de estrellas animado mejorado
   createStarField() {
+    if (this.scene.textures.exists('starfield')) return;
+
+    try {
+      const graphics = this.scene.add.graphics();
+      
+      // Fondo degradado
+      graphics.fillGradientStyle(0x000428, 0x004e92, 0x000428, 0x004e92, 0.8);
+      graphics.fillRect(0, 0, 800, 600);
+      
+      graphics.fillStyle(0xffffff);
+      
+      // Generar estrellas de diferentes tamaños
+      for (let i = 0; i < 150; i++) {
+        const x = Math.random() * 800;
+        const y = Math.random() * 600;
+        const size = Math.random() * 1.5 + 0.5;
+        graphics.fillCircle(x, y, size);
+      }
+      
+      // Estrellas más brillantes
+      graphics.fillStyle(0xffffaa);
+      for (let i = 0; i < 50; i++) {
+        const x = Math.random() * 800;
+        const y = Math.random() * 600;
+        const size = Math.random() * 2 + 1;
+        graphics.fillCircle(x, y, size);
+      }
+      
+      graphics.generateTexture('starfield', 800, 600);
+      graphics.destroy();
+    } catch (error) {
+      console.error('Error creating starfield:', error);
+      // Create simple fallback
+      this.createSimpleBackground();
+    }
+  }
+
+  // Simple fallback background
+  createSimpleBackground() {
+    if (this.scene.textures.exists('starfield')) return;
+    
     const graphics = this.scene.add.graphics();
-    
-    // Fondo degradado
-    graphics.fillGradientStyle(0x000428, 0x004e92, 0x000428, 0x004e92, 0.8);
+    graphics.fillStyle(0x000428);
     graphics.fillRect(0, 0, 800, 600);
-    
-    graphics.fillStyle(0xffffff);
-    
-    // Generar estrellas de diferentes tamaños
-    for (let i = 0; i < 150; i++) {
-      const x = Math.random() * 800;
-      const y = Math.random() * 600;
-      const size = Math.random() * 1.5 + 0.5;
-      graphics.fillCircle(x, y, size);
-    }
-    
-    // Estrellas más brillantes
-    graphics.fillStyle(0xffffaa);
-    for (let i = 0; i < 50; i++) {
-      const x = Math.random() * 800;
-      const y = Math.random() * 600;
-      const size = Math.random() * 2 + 1;
-      graphics.fillCircle(x, y, size);
-    }
-    
     graphics.generateTexture('starfield', 800, 600);
     graphics.destroy();
+  }
+
+  // Fallback textures for critical failures
+  createFallbackTextures() {
+    const textures = ['player', 'enemy', 'bullet', 'asteroid', 'particle'];
+    
+    textures.forEach(textureName => {
+      if (!this.scene.textures.exists(textureName)) {
+        const graphics = this.scene.add.graphics();
+        graphics.fillStyle(0xffffff);
+        graphics.fillRect(0, 0, 16, 16);
+        graphics.generateTexture(textureName, 16, 16);
+        graphics.destroy();
+      }
+    });
   }
 
   // Cargar audio con fallbacks silenciosos
