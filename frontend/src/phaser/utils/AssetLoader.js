@@ -174,46 +174,57 @@ export class AssetLoader {
   }
 
   createAdvancedTextures() {
-    // Crear textura para partículas más complejas con gradiente
-    const particleGraphics = this.scene.add.graphics();
-    
-    // Simulación de gradiente radial
-    particleGraphics.fillStyle(0xffffff, 1);
-    particleGraphics.fillCircle(4, 4, 4);
-    particleGraphics.fillStyle(0xffff00, 0.8);
-    particleGraphics.fillCircle(4, 4, 3);
-    particleGraphics.fillStyle(0xff0000, 0.6);
-    particleGraphics.fillCircle(4, 4, 2);
-    
-    particleGraphics.generateTexture('advancedParticle', 8, 8);
-    particleGraphics.destroy();
+    // Check if advanced textures already exist
+    if (this.scene.textures.exists('advancedParticle')) return;
 
-    // Crear sprite del jugador con más detalles para demos avanzadas
-    const detailedPlayerGraphics = this.scene.add.graphics();
-    
-    // Cuerpo de la nave
-    detailedPlayerGraphics.fillStyle(0x00ff00);
-    detailedPlayerGraphics.fillTriangle(16, 0, 4, 24, 28, 24);
-    
-    // Cabina
-    detailedPlayerGraphics.fillStyle(0x0066ff);
-    detailedPlayerGraphics.fillRect(12, 18, 8, 6);
-    
-    // Motores
-    detailedPlayerGraphics.fillStyle(0xff6600);
-    detailedPlayerGraphics.fillRect(8, 24, 4, 8);
-    detailedPlayerGraphics.fillRect(20, 24, 4, 8);
-    
-    // Luces
-    detailedPlayerGraphics.fillStyle(0xffffff);
-    detailedPlayerGraphics.fillCircle(12, 20, 1);
-    detailedPlayerGraphics.fillCircle(20, 20, 1);
-    
-    detailedPlayerGraphics.generateTexture('detailedPlayer', 32, 32);
-    detailedPlayerGraphics.destroy();
-    
-    // Crear texturas adicionales para efectos avanzados
-    this.createEffectTextures();
+    try {
+      // Crear textura para partículas más complejas con gradiente
+      const particleGraphics = this.scene.add.graphics();
+      
+      // Simulación de gradiente radial
+      particleGraphics.fillStyle(0xffffff, 1);
+      particleGraphics.fillCircle(4, 4, 4);
+      particleGraphics.fillStyle(0xffff00, 0.8);
+      particleGraphics.fillCircle(4, 4, 3);
+      particleGraphics.fillStyle(0xff0000, 0.6);
+      particleGraphics.fillCircle(4, 4, 2);
+      
+      particleGraphics.generateTexture('advancedParticle', 8, 8);
+      particleGraphics.destroy();
+
+      // Crear sprite del jugador con más detalles para demos avanzadas
+      if (!this.scene.textures.exists('detailedPlayer')) {
+        const detailedPlayerGraphics = this.scene.add.graphics();
+        
+        // Cuerpo de la nave
+        detailedPlayerGraphics.fillStyle(0x00ff00);
+        detailedPlayerGraphics.fillTriangle(16, 0, 4, 24, 28, 24);
+        
+        // Cabina
+        detailedPlayerGraphics.fillStyle(0x0066ff);
+        detailedPlayerGraphics.fillRect(12, 18, 8, 6);
+        
+        // Motores
+        detailedPlayerGraphics.fillStyle(0xff6600);
+        detailedPlayerGraphics.fillRect(8, 24, 4, 8);
+        detailedPlayerGraphics.fillRect(20, 24, 4, 8);
+        
+        // Luces
+        detailedPlayerGraphics.fillStyle(0xffffff);
+        detailedPlayerGraphics.fillCircle(12, 20, 1);
+        detailedPlayerGraphics.fillCircle(20, 20, 1);
+        
+        detailedPlayerGraphics.generateTexture('detailedPlayer', 32, 32);
+        detailedPlayerGraphics.destroy();
+      }
+      
+      // Crear texturas adicionales para efectos avanzados
+      this.createEffectTextures();
+    } catch (error) {
+      console.error('Error creating advanced textures:', error);
+      // Use basic textures as fallback
+      this.createFallbackTextures();
+    }
   }
 
   createEffectTextures() {
