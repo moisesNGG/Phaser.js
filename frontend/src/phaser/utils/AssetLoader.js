@@ -228,22 +228,30 @@ export class AssetLoader {
   }
 
   createEffectTextures() {
-    // Textura de chispa para efectos de explosión
-    const sparkGraphics = this.scene.add.graphics();
-    sparkGraphics.fillStyle(0xffffff);
-    sparkGraphics.fillRect(0, 1, 4, 1);
-    sparkGraphics.fillRect(1, 0, 1, 4);
-    sparkGraphics.generateTexture('spark', 4, 4);
-    sparkGraphics.destroy();
-    
-    // Textura de humo
-    const smokeGraphics = this.scene.add.graphics();
-    smokeGraphics.fillStyle(0x666666, 0.6);
-    smokeGraphics.fillCircle(8, 8, 8);
-    smokeGraphics.fillStyle(0x999999, 0.4);
-    smokeGraphics.fillCircle(8, 8, 6);
-    smokeGraphics.generateTexture('smoke', 16, 16);
-    smokeGraphics.destroy();
+    try {
+      // Textura de chispa para efectos de explosión
+      if (!this.scene.textures.exists('spark')) {
+        const sparkGraphics = this.scene.add.graphics();
+        sparkGraphics.fillStyle(0xffffff);
+        sparkGraphics.fillRect(0, 1, 4, 1);
+        sparkGraphics.fillRect(1, 0, 1, 4);
+        sparkGraphics.generateTexture('spark', 4, 4);
+        sparkGraphics.destroy();
+      }
+      
+      // Textura de humo
+      if (!this.scene.textures.exists('smoke')) {
+        const smokeGraphics = this.scene.add.graphics();
+        smokeGraphics.fillStyle(0x666666, 0.6);
+        smokeGraphics.fillCircle(8, 8, 8);
+        smokeGraphics.fillStyle(0x999999, 0.4);
+        smokeGraphics.fillCircle(8, 8, 6);
+        smokeGraphics.generateTexture('smoke', 16, 16);
+        smokeGraphics.destroy();
+      }
+    } catch (error) {
+      console.error('Error creating effect textures:', error);
+    }
   }
 
   // Función de utilidad para cargar spritesheets
