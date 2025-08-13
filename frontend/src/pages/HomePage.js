@@ -116,6 +116,7 @@ const HomePage = () => {
               onPlay={handleDemoPlay}
               activeDemo={activeDemo}
               color="cyan"
+              onComplete={() => markSectionCompleted('basico')}
             />
           </TabsContent>
 
@@ -127,6 +128,7 @@ const HomePage = () => {
               onPlay={handleDemoPlay}
               activeDemo={activeDemo}
               color="purple"
+              onComplete={() => markSectionCompleted('intermedio')}
             />
           </TabsContent>
 
@@ -138,6 +140,7 @@ const HomePage = () => {
               onPlay={handleDemoPlay}
               activeDemo={activeDemo}
               color="pink"
+              onComplete={() => markSectionCompleted('avanzado')}
             />
           </TabsContent>
 
