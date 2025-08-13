@@ -77,40 +77,76 @@ const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) =
         });
       }
     } else {
-      // Iniciar demo
-      const containerElement = demoRefs.current[demoId];
-      if (containerElement && sceneName && mountedRef.current) {
-        try {
-          // Clear container
-          containerElement.innerHTML = '';
-          
-          const config = createDemoConfig(sceneName, null);
-          if (config) {
-            config.parent = containerElement;
-            config.width = Math.min(containerElement.clientWidth, 400);
-            config.height = Math.min(containerElement.clientHeight, 300);
-            
-            // Enhanced error handling
-            config.callbacks = {
-              ...config.callbacks,
-              postBoot: function(game) {
-                console.log(`Demo ${demoId} loaded successfully`);
-              }
-            };
-            
-            const game = new Phaser.Game(config);
-            
-            if (mountedRef.current) {
-              setRunningDemos(prev => ({
-                ...prev,
-                [demoId]: { game, sceneName }
-              }));
-            }
+      // CRITICAL FIX: Stop all other running demos first to prevent WebGL context conflicts
+      Object.keys(runningDemos).forEach(otherDemoId => {
+        if (runningDemos[otherDemoId] && runningDemos[otherDemoId].game) {
+          try {
+            runningDemos[otherDemoId].game.destroy(true, false);
+          } catch (error) {
+            console.warn('Error stopping other demo:', error);
           }
-        } catch (error) {
-          console.error(`Error starting demo ${demoId}:`, error);
         }
-      }
+      });
+      
+      // Clear all running demos
+      setRunningDemos({});
+      
+      // Wait a moment for cleanup before starting new demo
+      setTimeout(() => {
+        if (!mountedRef.current) return;
+        
+        // Iniciar demo
+        const containerElement = demoRefs.current[demoId];
+        if (containerElement && sceneName && mountedRef.current) {
+          try {
+            // Clear container
+            containerElement.innerHTML = '';
+            
+            const config = createDemoConfig(sceneName, null);
+            if (config) {
+              config.parent = containerElement;
+              config.width = Math.min(containerElement.clientWidth, 400);
+              config.height = Math.min(containerElement.clientHeight, 300);
+              
+              // Enhanced error handling and WebGL context management
+              config.callbacks = {
+                ...config.callbacks,
+                postBoot: function(game) {
+                  console.log(`Demo ${demoId} loaded successfully`);
+                  // Ensure WebGL context is properly initialized
+                  if (game.renderer && game.renderer.gl) {
+                    console.log(`WebGL context active for demo ${demoId}`);
+                  }
+                }
+              };
+              
+              // Add WebGL context loss recovery
+              config.callbacks.preBoot = function(game) {
+                if (game.canvas) {
+                  game.canvas.addEventListener('webglcontextlost', function(event) {
+                    console.warn(`WebGL context lost for demo ${demoId}`);
+                    event.preventDefault();
+                  });
+                  game.canvas.addEventListener('webglcontextrestored', function() {
+                    console.log(`WebGL context restored for demo ${demoId}`);
+                  });
+                }
+              };
+              
+              const game = new Phaser.Game(config);
+              
+              if (mountedRef.current) {
+                setRunningDemos(prev => ({
+                  ...prev,
+                  [demoId]: { game, sceneName }
+                }));
+              }
+            }
+          } catch (error) {
+            console.error(`Error starting demo ${demoId}:`, error);
+          }
+        }
+      }, 100); // Small delay to ensure cleanup
     }
     
     if (onPlay && mountedRef.current) {
