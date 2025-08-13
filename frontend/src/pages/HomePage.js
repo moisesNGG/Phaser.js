@@ -78,11 +78,20 @@ const HomePage = () => {
           </p>
           
           <div className="flex gap-4 justify-center">
-            <Button size="lg" className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700">
+            <Button 
+              size="lg" 
+              className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700"
+              onClick={handleStartDemo}
+            >
               <Play className="w-5 h-5 mr-2" />
               Comenzar Demo
             </Button>
-            <Button size="lg" variant="outline" className="border-white/20 hover:bg-white/10">
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="border-white/20 hover:bg-white/10"
+              onClick={handleViewFinalGame}
+            >
               <Rocket className="w-5 h-5 mr-2" />
               Ver Juego Final
             </Button>
