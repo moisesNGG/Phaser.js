@@ -122,17 +122,28 @@ const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) =
             </CardHeader>
             <CardContent>
               <div className="aspect-video bg-black/60 rounded-lg mb-4 flex items-center justify-center relative overflow-hidden">
-                {activeDemo === demo.id ? (
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 flex items-center justify-center">
-                    <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  </div>
-                ) : (
+                <div 
+                  ref={el => demoRefs.current[demo.id] = el}
+                  className="w-full h-full"
+                  style={{ display: runningDemos[demo.id] ? 'block' : 'none' }}
+                />
+                
+                {!runningDemos[demo.id] && (
                   <div className="text-center">
                     <div className={`w-16 h-16 bg-gradient-to-br ${colorClasses.gradient} rounded-full flex items-center justify-center mb-2 mx-auto opacity-60`}>
                       <Play className="w-8 h-8 text-white ml-1" />
                     </div>
                     <span className="text-gray-400 text-sm">{demo.preview}</span>
                   </div>
+                )}
+                
+                {runningDemos[demo.id] && (
+                  <button
+                    onClick={() => handleDemoPlay(demo)}
+                    className="absolute top-2 right-2 w-8 h-8 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center text-white opacity-70 hover:opacity-100 transition-opacity"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                 )}
               </div>
               
@@ -148,17 +159,27 @@ const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) =
                 <Button 
                   size="sm" 
                   className={colorClasses.button}
-                  onClick={() => onPlay(demo.id)}
-                  disabled={activeDemo === demo.id}
+                  onClick={() => handleDemoPlay(demo)}
                 >
-                  {activeDemo === demo.id ? (
-                    <Pause className="w-4 h-4 mr-2" />
+                  {runningDemos[demo.id] ? (
+                    <>
+                      <Pause className="w-4 h-4 mr-2" />
+                      Detener
+                    </>
                   ) : (
-                    <Play className="w-4 h-4 mr-2" />
+                    <>
+                      <Play className="w-4 h-4 mr-2" />
+                      Ejecutar
+                    </>
                   )}
-                  {activeDemo === demo.id ? 'Ejecutando' : 'Ejecutar'}
                 </Button>
-                <Button size="sm" variant="outline" className="border-white/20 hover:bg-white/10">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="border-white/20 hover:bg-white/10"
+                  onClick={() => handleDemoReset(demo)}
+                  disabled={!runningDemos[demo.id]}
+                >
                   <RotateCcw className="w-4 h-4 mr-2" />
                   Reset
                 </Button>
