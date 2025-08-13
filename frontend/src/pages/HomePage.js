@@ -14,6 +14,7 @@ const HomePage = () => {
   const [activeDemo, setActiveDemo] = useState(null);
   const [gameRunning, setGameRunning] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [activeTab, setActiveTab] = useState("basico");
   const [completedSections, setCompletedSections] = useState({
     basico: false,
     intermedio: false,
