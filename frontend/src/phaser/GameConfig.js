@@ -49,14 +49,16 @@ export const DEMO_CONFIG = {
     powerPreference: 'low-power'
   },
   callbacks: {
-    preBoot: function(game) {
-      game.canvas.oncontextlost = function(event) {
-        console.warn('WebGL context lost, attempting recovery');
-        event.preventDefault();
-      };
-      game.canvas.oncontextrestored = function() {
-        console.log('WebGL context restored');
-      };
+    postBoot: function(game) {
+      if (game.canvas) {
+        game.canvas.oncontextlost = function(event) {
+          console.warn('WebGL context lost, attempting recovery');
+          event.preventDefault();
+        };
+        game.canvas.oncontextrestored = function() {
+          console.log('WebGL context restored');
+        };
+      }
     }
   }
 };
