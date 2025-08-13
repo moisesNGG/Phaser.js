@@ -1,14 +1,19 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from typing import List, Optional
 from models import Demo, DemoCreate, Score, ScoreCreate, LeaderboardEntry, GameStats
-from motor.motor_asyncio import AsyncIOMotorClient
-import os
 from datetime import datetime
 
-# MongoDB connection (usar la conexión existente del server.py)
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+# Database will be injected from server.py
+db = None
+
+def get_database():
+    """Get database instance - will be set by server.py"""
+    return db
+
+def set_database(database):
+    """Set database instance from server.py"""
+    global db
+    db = database
 
 router = APIRouter()
 
