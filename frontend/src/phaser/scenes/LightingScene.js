@@ -5,8 +5,9 @@ class LightingScene extends Phaser.Scene {
   constructor() {
     super({ key: 'LightingScene' });
     this.lights = [];
-    this.lightingEnabled = true;
+    this.lightObjects = [];
     this.ambientLight = 0.2;
+    this.player = null;
   }
 
   preload() {
@@ -15,491 +16,364 @@ class LightingScene extends Phaser.Scene {
   }
 
   create() {
-    // Habilitar sistema de iluminación
-    this.lights.enable();
-    this.lights.setAmbientColor(0x404040);
-
-    // Fondo oscuro para mostrar mejor los efectos de luz
-    this.add.image(400, 300, 'starfield').setAlpha(0.3);
-
+    // Habilitar sistema de luces (simulado con gráficos)
+    this.createDarkBackground();
+    
     // Título
-    this.add.text(400, 30, 'Demo: Sistema de Iluminación', {
+    this.titleText = this.add.text(400, 50, 'Demo: Efectos de Iluminación', {
       fontSize: '24px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
     // Crear objetos que serán iluminados
-    this.createLitObjects();
+    this.createIlluminatedObjects();
     
     // Crear diferentes tipos de luces
-    this.createStaticLights();
-    this.createDynamicLights();
-    this.createInteractiveLights();
-
-    // Controles de iluminación
-    this.setupLightingControls();
-
-    // Configurar interacción
-    this.setupInteraction();
+    this.createLights();
+    
+    // Crear jugador que puede moverse
+    this.createPlayer();
+    
+    // Configurar controles
+    this.setupControls();
+    
+    // Crear interfaz de control
+    this.createLightingControls();
 
     // Instrucciones
-    this.add.text(400, 560, 'Mueve el mouse para controlar luz | Click para crear luces | Teclas 1-4 para efectos', {
-      fontSize: '12px',
-      fontFamily: 'Arial',
-      fill: '#ffffff'
-    }).setOrigin(0.5);
-  }
-
-  createLitObjects() {
-    // Crear objetos que recibirán iluminación
-    
-    // Plataformas iluminadas
-    for (let i = 0; i < 4; i++) {
-      const platform = this.add.rectangle(150 + i * 150, 450, 100, 20, 0x666666);
-      platform.setPipeline('Light2D'); // Habilitar iluminación en este objeto
-      platform.setStrokeStyle(2, 0x888888);
-    }
-
-    // Círculos con diferentes materiales
-    const materials = [
-      { color: 0xff4444, pos: { x: 200, y: 200 } },
-      { color: 0x44ff44, pos: { x: 400, y: 200 } },
-      { color: 0x4444ff, pos: { x: 600, y: 200 } },
-    ];
-
-    materials.forEach((mat, index) => {
-      const circle = this.add.circle(mat.pos.x, mat.pos.y, 40, mat.color);
-      circle.setPipeline('Light2D');
-      circle.setStrokeStyle(3, 0xffffff);
-      
-      // Etiquetas
-      this.add.text(mat.pos.x, mat.pos.y + 70, `Material ${index + 1}`, {
-        fontSize: '12px',
-        fontFamily: 'Arial',
-        fill: '#cccccc'
-      }).setOrigin(0.5);
-    });
-
-    // Crear sprites con normales para iluminación avanzada
-    this.createNormalMappedSprites();
-  }
-
-  createNormalMappedSprites() {
-    // Simular sprites con normal mapping usando gráficos
-    for (let i = 0; i < 3; i++) {
-      const x = 250 + i * 100;
-      const y = 350;
-
-      // Sprite base
-      const sprite = this.add.graphics();
-      sprite.fillGradientStyle(0x666666, 0x666666, 0x333333, 0x333333);
-      sprite.fillRect(-25, -25, 50, 50);
-      sprite.x = x;
-      sprite.y = y;
-      sprite.setPipeline('Light2D');
-
-      // Simular efecto de normal mapping con efectos adicionales
-      const highlight = this.add.graphics();
-      highlight.fillStyle(0xffffff, 0.3);
-      highlight.fillEllipse(0, 0, 20, 20);
-      highlight.x = x - 5;
-      highlight.y = y - 5;
-      highlight.setPipeline('Light2D');
-    }
-  }
-
-  createStaticLights() {
-    // Luz principal estática
-    const mainLight = this.lights.addLight(400, 100, 200)
-      .setColor(0xffffff)
-      .setIntensity(1.0);
-
-    this.lights.push(mainLight);
-
-    // Luces de colores en las esquinas
-    const cornerLights = [
-      { x: 100, y: 100, color: 0xff0000, intensity: 0.8 },
-      { x: 700, y: 100, color: 0x00ff00, intensity: 0.8 },
-      { x: 100, y: 500, color: 0x0000ff, intensity: 0.8 },
-      { x: 700, y: 500, color: 0xffff00, intensity: 0.8 }
-    ];
-
-    cornerLights.forEach(lightConfig => {
-      const light = this.lights.addLight(lightConfig.x, lightConfig.y, 150)
-        .setColor(lightConfig.color)
-        .setIntensity(lightConfig.intensity);
-      
-      this.lights.push(light);
-      
-      // Indicador visual de la luz
-      this.add.circle(lightConfig.x, lightConfig.y, 5, lightConfig.color, 0.8);
-    });
-  }
-
-  createDynamicLights() {
-    // Luz que se mueve en círculo
-    this.orbitingLight = this.lights.addLight(400, 300, 120)
-      .setColor(0xff00ff)
-      .setIntensity(1.2);
-
-    // Animación orbital
-    this.orbitAngle = 0;
-    this.orbitRadius = 80;
-    this.orbitCenter = { x: 400, y: 300 };
-
-    // Luz pulsante
-    this.pulsingLight = this.lights.addLight(600, 350, 100)
-      .setColor(0x00ffff)
-      .setIntensity(0.5);
-
-    // Animación de pulso
-    this.tweens.add({
-      targets: this.pulsingLight,
-      intensity: 1.5,
-      duration: 1000,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut'
-    });
-
-    // Luz que sigue el patrón sinusoidal
-    this.waveLight = this.lights.addLight(200, 400, 80)
-      .setColor(0xffa500)
-      .setIntensity(0.8);
-
-    this.waveTime = 0;
-
-    this.lights.push(this.orbitingLight, this.pulsingLight, this.waveLight);
-  }
-
-  createInteractiveLights() {
-    // Luz que sigue el mouse
-    this.mouseLight = this.lights.addLight(0, 0, 150)
-      .setColor(0xffffff)
-      .setIntensity(1.0);
-
-    this.lights.push(this.mouseLight);
-
-    // Configurar seguimiento del mouse
-    this.input.on('pointermove', (pointer) => {
-      this.mouseLight.x = pointer.x;
-      this.mouseLight.y = pointer.y;
-    });
-
-    // Crear luces al hacer click
-    this.input.on('pointerdown', (pointer) => {
-      this.createClickLight(pointer.x, pointer.y);
-    });
-  }
-
-  createClickLight(x, y) {
-    // Crear luz temporal en la posición del click
-    const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-
-    const clickLight = this.lights.addLight(x, y, 100)
-      .setColor(randomColor)
-      .setIntensity(1.5);
-
-    // Efecto de aparición
-    this.tweens.add({
-      targets: clickLight,
-      intensity: 0,
-      radius: 200,
-      duration: 2000,
-      ease: 'Power2',
-      onComplete: () => {
-        this.lights.removeLight(clickLight);
-      }
-    });
-
-    // Efecto visual de creación
-    this.createLightCreationEffect(x, y, randomColor);
-  }
-
-  createLightCreationEffect(x, y, color) {
-    // Crear efecto visual cuando se crea una luz
-    const flash = this.add.circle(x, y, 10, color, 0.8);
-    
-    this.tweens.add({
-      targets: flash,
-      scaleX: 5,
-      scaleY: 5,
-      alpha: 0,
-      duration: 500,
-      ease: 'Power2',
-      onComplete: () => flash.destroy()
-    });
-
-    // Partículas de luz
-    for (let i = 0; i < 8; i++) {
-      const particle = this.add.circle(x, y, 3, color);
-      const angle = (i / 8) * Math.PI * 2;
-      const distance = 50;
-
-      this.tweens.add({
-        targets: particle,
-        x: x + Math.cos(angle) * distance,
-        y: y + Math.sin(angle) * distance,
-        alpha: 0,
-        scale: 0,
-        duration: 800,
-        ease: 'Power2',
-        onComplete: () => particle.destroy()
-      });
-    }
-  }
-
-  setupLightingControls() {
-    // Panel de controles
-    const controlPanel = this.add.rectangle(100, 120, 150, 200, 0x000000, 0.8);
-    controlPanel.setStrokeStyle(2, 0x333333);
-
-    this.add.text(100, 40, 'Controles', {
+    this.add.text(400, 570, 'Mueve con WASD/Flechas • Usa los controles para cambiar la iluminación', {
       fontSize: '14px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
-    // Botón on/off iluminación
-    this.lightingButton = this.add.rectangle(100, 70, 120, 25, 0x006600);
-    this.lightingButton.setInteractive();
-    this.lightingButtonText = this.add.text(100, 70, 'Luces: ON', {
-      fontSize: '10px',
-      fontFamily: 'Arial',
-      fill: '#ffffff'
-    }).setOrigin(0.5);
+    // Iniciar sistema de renderizado de luces
+    this.setupLightingSystem();
+  }
 
-    this.lightingButton.on('pointerdown', this.toggleLighting, this);
+  createDarkBackground() {
+    // Crear fondo oscuro
+    this.darkLayer = this.add.graphics();
+    this.darkLayer.fillStyle(0x000000, 0.9);
+    this.darkLayer.fillRect(0, 0, 800, 600);
+    
+    // Crear capa de luz que se mezclará
+    this.lightLayer = this.add.graphics();
+    this.lightLayer.setBlendMode(Phaser.BlendModes.ADD);
+  }
 
-    // Control de luz ambiente
-    this.add.text(100, 100, 'Luz Ambiente:', {
-      fontSize: '10px',
-      fontFamily: 'Arial',
-      fill: '#ffffff'
-    }).setOrigin(0.5);
+  createIlluminatedObjects() {
+    // Crear objetos que reaccionarán a la luz
+    this.illuminatedObjects = [];
 
-    this.createAmbientSlider();
-
-    // Botones de efectos especiales
-    const effectButtons = [
-      { name: '1: Fogata', y: 150, effect: () => this.createFireEffect() },
-      { name: '2: Rayo', y: 175, effect: () => this.createLightningEffect() },
-      { name: '3: Disco', y: 200, effect: () => this.createDiscoEffect() },
-      { name: '4: Aurora', y: 225, effect: () => this.createAuroraEffect() }
+    // Paredes y obstáculos
+    const walls = [
+      { x: 200, y: 200, width: 20, height: 100 },
+      { x: 600, y: 300, width: 100, height: 20 },
+      { x: 100, y: 400, width: 80, height: 20 },
+      { x: 500, y: 150, width: 20, height: 80 }
     ];
 
-    effectButtons.forEach(btn => {
-      const button = this.add.rectangle(100, btn.y, 120, 20, 0x444444);
-      button.setInteractive();
-      button.on('pointerdown', btn.effect);
-      
-      this.add.text(100, btn.y, btn.name, {
-        fontSize: '9px',
-        fontFamily: 'Arial',
-        fill: '#ffffff'
-      }).setOrigin(0.5);
-
-      button.on('pointerover', () => button.setFillStyle(0x666666));
-      button.on('pointerout', () => button.setFillStyle(0x444444));
+    walls.forEach(wall => {
+      const wallObject = this.add.rectangle(wall.x, wall.y, wall.width, wall.height, 0x666666);
+      this.illuminatedObjects.push(wallObject);
     });
 
-    // Configurar teclas
-    this.key1 = this.input.keyboard.addKey('ONE');
-    this.key2 = this.input.keyboard.addKey('TWO');
-    this.key3 = this.input.keyboard.addKey('THREE');
-    this.key4 = this.input.keyboard.addKey('FOUR');
-  }
-
-  createAmbientSlider() {
-    // Crear control deslizante para luz ambiente
-    const sliderBg = this.add.rectangle(100, 120, 100, 6, 0x333333);
-    const sliderFill = this.add.rectangle(70, 120, 20, 6, 0x666666);
-    const sliderHandle = this.add.circle(80, 120, 6, 0xffffff);
-
-    sliderHandle.setInteractive();
-    this.input.setDraggable(sliderHandle);
-
-    sliderHandle.on('drag', (pointer, dragX) => {
-      const minX = 50;
-      const maxX = 150;
-      const clampedX = Phaser.Math.Clamp(dragX, minX, maxX);
-      
-      sliderHandle.x = clampedX;
-      sliderFill.width = (clampedX - minX);
-      sliderFill.x = minX + sliderFill.width / 2;
-      
-      this.ambientLight = (clampedX - minX) / 100;
-      this.lights.setAmbientColor(Math.floor(this.ambientLight * 255) * 0x010101);
-    });
-  }
-
-  setupInteraction() {
-    // Configurar eventos de teclado para efectos especiales
-    this.input.keyboard.on('keydown-ONE', this.createFireEffect, this);
-    this.input.keyboard.on('keydown-TWO', this.createLightningEffect, this);
-    this.input.keyboard.on('keydown-THREE', this.createDiscoEffect, this);
-    this.input.keyboard.on('keydown-FOUR', this.createAuroraEffect, this);
-  }
-
-  createFireEffect() {
-    // Simular efecto de fuego con múltiples luces parpadeantes
-    const fireX = 400;
-    const fireY = 400;
-    
-    console.log('🔥 Efecto de fuego activado');
-
-    for (let i = 0; i < 5; i++) {
-      const fireLight = this.lights.addLight(
-        fireX + (Math.random() - 0.5) * 20,
-        fireY + (Math.random() - 0.5) * 20,
-        60 + Math.random() * 40
-      ).setColor(0xff4400).setIntensity(0.8);
-
-      // Animación de parpadeo
-      this.tweens.add({
-        targets: fireLight,
-        intensity: 0.2,
-        duration: 100 + Math.random() * 200,
-        yoyo: true,
-        repeat: 10,
-        ease: 'Power1',
-        onComplete: () => {
-          this.lights.removeLight(fireLight);
-        }
-      });
+    // Objetos decorativos
+    for (let i = 0; i < 8; i++) {
+      const x = Phaser.Math.Between(100, 700);
+      const y = Phaser.Math.Between(150, 450);
+      const obj = this.add.image(x, y, ['enemy', 'asteroid', 'bullet'][i % 3]);
+      obj.setScale(2);
+      obj.setTint(0x333333); // Inicialmente oscuros
+      this.illuminatedObjects.push(obj);
     }
   }
 
-  createLightningEffect() {
-    // Efecto de rayo con luz intensa y breve
-    console.log('⚡ Efecto de rayo activado');
+  createLights() {
+    this.lightSources = [];
 
-    const lightningLight = this.lights.addLight(400, 300, 400)
-      .setColor(0xaaaaff)
-      .setIntensity(3.0);
+    // Luz principal estática
+    this.addLight(150, 150, 150, 0xffffff, 1.0, 'static');
+    
+    // Luz de color rojo
+    this.addLight(650, 150, 120, 0xff0000, 0.8, 'static');
+    
+    // Luz azul parpadeante
+    this.addLight(150, 450, 100, 0x0066ff, 0.6, 'flicker');
+    
+    // Luz verde que se mueve
+    this.addLight(650, 450, 80, 0x00ff00, 0.7, 'moving');
+    
+    // Luz que sigue al mouse
+    this.mouseLight = this.addLight(400, 300, 100, 0xffff00, 0.5, 'mouse');
+  }
 
-    // Flash rápido
-    this.tweens.add({
-      targets: lightningLight,
-      intensity: 0,
-      duration: 200,
-      ease: 'Power4',
-      onComplete: () => {
-        this.lights.removeLight(lightningLight);
+  addLight(x, y, radius, color, intensity, type) {
+    const light = {
+      x: x,
+      y: y,
+      radius: radius,
+      color: color,
+      intensity: intensity,
+      type: type,
+      originalIntensity: intensity,
+      angle: 0,
+      enabled: true
+    };
+
+    this.lightSources.push(light);
+    return light;
+  }
+
+  createPlayer() {
+    this.player = this.add.image(400, 300, 'detailedPlayer');
+    this.player.setScale(2);
+    this.player.setTint(0x333333); // Inicialmente oscuro
+  }
+
+  setupControls() {
+    this.cursors = this.input.keyboard.createCursorKeys();
+    this.wasd = this.input.keyboard.addKeys('W,S,A,D');
+    
+    // Seguir mouse con luz amarilla
+    this.input.on('pointermove', (pointer) => {
+      if (this.mouseLight) {
+        this.mouseLight.x = pointer.x;
+        this.mouseLight.y = pointer.y;
       }
     });
+  }
 
-    // Efecto visual de rayo
-    const lightning = this.add.graphics();
-    lightning.lineStyle(3, 0xffffff);
-    lightning.lineBetween(Math.random() * 800, 0, Math.random() * 800, 600);
+  createLightingControls() {
+    const controlsY = 100;
+    const buttonWidth = 100;
+    const buttonHeight = 25;
     
-    this.tweens.add({
-      targets: lightning,
-      alpha: 0,
-      duration: 300,
-      onComplete: () => lightning.destroy()
+    // Control de luz ambiente
+    this.add.text(50, controlsY - 30, 'Luz Ambiente:', {
+      fontSize: '12px',
+      fontFamily: 'Arial',
+      fill: '#ffffff'
+    });
+
+    this.ambientSlider = this.add.rectangle(50, controlsY, 100, 10, 0x666666)
+      .setInteractive()
+      .on('pointerdown', (pointer) => this.setAmbientLight(pointer));
+
+    this.ambientIndicator = this.add.rectangle(50 + this.ambientLight * 100, controlsY, 10, 10, 0xffffff);
+
+    // Botones para controlar luces individuales
+    const lightButtons = [
+      { name: 'Luz Principal', index: 0, x: 200, color: 0xffffff },
+      { name: 'Luz Roja', index: 1, x: 310, color: 0xff0000 },
+      { name: 'Luz Azul', index: 2, x: 420, color: 0x0066ff },
+      { name: 'Luz Verde', index: 3, x: 530, color: 0x00ff00 },
+      { name: 'Luz Mouse', index: 4, x: 640, color: 0xffff00 }
+    ];
+
+    lightButtons.forEach(btn => {
+      const button = this.add.rectangle(btn.x, controlsY, buttonWidth, buttonHeight, btn.color, 0.7)
+        .setInteractive()
+        .on('pointerdown', () => this.toggleLight(btn.index))
+        .on('pointerover', () => button.setAlpha(0.9))
+        .on('pointerout', () => button.setAlpha(0.7));
+
+      this.add.text(btn.x, controlsY, btn.name, {
+        fontSize: '8px',
+        fontFamily: 'Arial',
+        fill: '#000000'
+      }).setOrigin(0.5);
+    });
+
+    // Información de iluminación
+    this.lightingInfo = this.add.text(20, 20, '', {
+      fontSize: '12px',
+      fontFamily: 'Arial',
+      fill: '#ffffff'
     });
   }
 
-  createDiscoEffect() {
-    // Efecto de luces de discoteca
-    console.log('🕺 Efecto disco activado');
+  setupLightingSystem() {
+    // Este método configura el sistema de renderizado de luces simulado
+    this.lightingMask = this.add.graphics();
+    this.lightingMask.setVisible(false);
+  }
 
-    const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
-    
-    for (let i = 0; i < 6; i++) {
-      const discoLight = this.lights.addLight(
-        Math.random() * 800,
-        Math.random() * 600,
-        80
-      ).setColor(colors[i]).setIntensity(1.5);
+  setAmbientLight(pointer) {
+    const localX = pointer.x - 50;
+    this.ambientLight = Phaser.Math.Clamp(localX / 100, 0, 1);
+    this.ambientIndicator.x = 50 + this.ambientLight * 100;
+  }
 
-      // Rotación y cambio de intensidad
-      this.tweens.add({
-        targets: discoLight,
-        intensity: 0.3,
-        duration: 300,
-        yoyo: true,
-        repeat: 8,
-        ease: 'Power1',
-        onComplete: () => {
-          this.lights.removeLight(discoLight);
-        }
-      });
+  toggleLight(index) {
+    if (this.lightSources[index]) {
+      this.lightSources[index].enabled = !this.lightSources[index].enabled;
     }
   }
 
-  createAuroraEffect() {
-    // Efecto de aurora boreal
-    console.log('🌌 Efecto aurora activado');
-
-    const auroraColors = [0x00ff88, 0x0088ff, 0x8800ff];
-    
-    for (let i = 0; i < 3; i++) {
-      const auroraLight = this.lights.addLight(
-        200 + i * 200,
-        100,
-        150
-      ).setColor(auroraColors[i]).setIntensity(0.8);
-
-      // Movimiento ondulante
-      this.tweens.add({
-        targets: auroraLight,
-        y: 200,
-        intensity: 0.3,
-        duration: 2000 + i * 500,
-        yoyo: true,
-        repeat: 3,
-        ease: 'Sine.easeInOut',
-        onComplete: () => {
-          this.lights.removeLight(auroraLight);
-        }
-      });
-    }
+  updateLights() {
+    // Actualizar comportamientos de luces especiales
+    this.lightSources.forEach((light, index) => {
+      switch (light.type) {
+        case 'flicker':
+          // Luz parpadeante
+          light.intensity = light.originalIntensity * (0.5 + Math.random() * 0.5);
+          break;
+          
+        case 'moving':
+          // Luz que se mueve en círculo
+          light.angle += 0.02;
+          light.x = 650 + Math.cos(light.angle) * 50;
+          light.y = 450 + Math.sin(light.angle) * 50;
+          break;
+      }
+    });
   }
 
-  toggleLighting() {
-    if (this.lightingEnabled) {
-      this.lights.disable();
-      this.lightingEnabled = false;
-      this.lightingButton.setFillStyle(0x660000);
-      this.lightingButtonText.setText('Luces: OFF');
-    } else {
-      this.lights.enable();
-      this.lightingEnabled = true;
-      this.lightingButton.setFillStyle(0x006600);
-      this.lightingButtonText.setText('Luces: ON');
+  renderLighting() {
+    // Limpiar capa de luz
+    this.lightLayer.clear();
+    
+    // Aplicar luz ambiente
+    this.lightLayer.fillStyle(0xffffff, this.ambientLight * 0.1);
+    this.lightLayer.fillRect(0, 0, 800, 600);
+    
+    // Renderizar cada fuente de luz
+    this.lightSources.forEach(light => {
+      if (!light.enabled) return;
+      
+      // Crear gradiente radial simulado
+      const gradient = this.createLightGradient(light);
+      this.lightLayer.fillStyle(light.color, light.intensity * 0.3);
+      this.lightLayer.fillCircle(light.x, light.y, light.radius);
+      
+      // Círculo interno más brillante
+      this.lightLayer.fillStyle(light.color, light.intensity * 0.6);
+      this.lightLayer.fillCircle(light.x, light.y, light.radius * 0.5);
+      
+      // Núcleo de la luz
+      this.lightLayer.fillStyle(0xffffff, light.intensity);
+      this.lightLayer.fillCircle(light.x, light.y, light.radius * 0.2);
+    });
+    
+    // Aplicar iluminación a objetos
+    this.applyLightingToObjects();
+  }
+
+  createLightGradient(light) {
+    // Simular gradiente radial (en una implementación real usaríamos shaders)
+    return null; // Placeholder para gradiente
+  }
+
+  applyLightingToObjects() {
+    // Calcular iluminación para cada objeto
+    this.illuminatedObjects.forEach(obj => {
+      let totalIllumination = this.ambientLight;
+      let averageColor = { r: 255, g: 255, b: 255 };
+      let lightCount = 0;
+      
+      this.lightSources.forEach(light => {
+        if (!light.enabled) return;
+        
+        const distance = Phaser.Math.Distance.Between(
+          obj.x, obj.y, light.x, light.y
+        );
+        
+        if (distance < light.radius) {
+          const lightStrength = (1 - distance / light.radius) * light.intensity;
+          totalIllumination += lightStrength;
+          lightCount++;
+          
+          // Mezclar colores de luz
+          const r = (light.color >> 16) & 0xff;
+          const g = (light.color >> 8) & 0xff;
+          const b = light.color & 0xff;
+          
+          averageColor.r = (averageColor.r + r) / 2;
+          averageColor.g = (averageColor.g + g) / 2;
+          averageColor.b = (averageColor.b + b) / 2;
+        }
+      });
+      
+      // Aplicar iluminación al objeto
+      totalIllumination = Math.min(totalIllumination, 1);
+      const finalColor = Phaser.Display.Color.GetColor(
+        Math.floor(averageColor.r * totalIllumination),
+        Math.floor(averageColor.g * totalIllumination),
+        Math.floor(averageColor.b * totalIllumination)
+      );
+      
+      obj.setTint(finalColor);
+    });
+    
+    // Aplicar al jugador también
+    let playerIllumination = this.ambientLight;
+    this.lightSources.forEach(light => {
+      if (!light.enabled) return;
+      
+      const distance = Phaser.Math.Distance.Between(
+        this.player.x, this.player.y, light.x, light.y
+      );
+      
+      if (distance < light.radius) {
+        const lightStrength = (1 - distance / light.radius) * light.intensity;
+        playerIllumination += lightStrength;
+      }
+    });
+    
+    playerIllumination = Math.min(playerIllumination, 1);
+    const playerColor = Phaser.Display.Color.GetColor(
+      Math.floor(255 * playerIllumination),
+      Math.floor(255 * playerIllumination),
+      Math.floor(255 * playerIllumination)
+    );
+    this.player.setTint(playerColor);
+  }
+
+  updatePlayer() {
+    const speed = 150;
+    let moved = false;
+    
+    if (this.cursors.left.isDown || this.wasd.A.isDown) {
+      this.player.x -= speed * this.game.loop.delta / 1000;
+      moved = true;
     }
+    if (this.cursors.right.isDown || this.wasd.D.isDown) {
+      this.player.x += speed * this.game.loop.delta / 1000;
+      moved = true;
+    }
+    if (this.cursors.up.isDown || this.wasd.W.isDown) {
+      this.player.y -= speed * this.game.loop.delta / 1000;
+      moved = true;
+    }
+    if (this.cursors.down.isDown || this.wasd.S.isDown) {
+      this.player.y += speed * this.game.loop.delta / 1000;
+      moved = true;
+    }
+    
+    // Mantener jugador en pantalla
+    this.player.x = Phaser.Math.Clamp(this.player.x, 20, 780);
+    this.player.y = Phaser.Math.Clamp(this.player.y, 20, 580);
+  }
+
+  updateLightingInfo() {
+    const activeLights = this.lightSources.filter(light => light.enabled).length;
+    
+    this.lightingInfo.setText([
+      `Luces activas: ${activeLights}/${this.lightSources.length}`,
+      `Luz ambiente: ${Math.round(this.ambientLight * 100)}%`,
+      `Sistema: Lighting simulado`,
+      `Objetos iluminados: ${this.illuminatedObjects.length + 1}`
+    ]);
   }
 
   update() {
-    // Actualizar luz orbital
-    this.orbitAngle += 0.02;
-    const orbitX = this.orbitCenter.x + Math.cos(this.orbitAngle) * this.orbitRadius;
-    const orbitY = this.orbitCenter.y + Math.sin(this.orbitAngle) * this.orbitRadius;
-    this.orbitingLight.setPosition(orbitX, orbitY);
-
-    // Actualizar luz ondulatoria
-    this.waveTime += 0.05;
-    const waveY = 400 + Math.sin(this.waveTime) * 50;
-    this.waveLight.setPosition(200, waveY);
-
-    // Verificar teclas para efectos especiales
-    if (Phaser.Input.Keyboard.JustDown(this.key1)) {
-      this.createFireEffect();
-    }
-    if (Phaser.Input.Keyboard.JustDown(this.key2)) {
-      this.createLightningEffect();
-    }
-    if (Phaser.Input.Keyboard.JustDown(this.key3)) {
-      this.createDiscoEffect();
-    }
-    if (Phaser.Input.Keyboard.JustDown(this.key4)) {
-      this.createAuroraEffect();
-    }
+    this.updatePlayer();
+    this.updateLights();
+    this.renderLighting();
+    this.updateLightingInfo();
   }
 }
 
