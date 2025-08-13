@@ -147,46 +147,11 @@ export class AssetLoader {
     });
   }
 
-  // Cargar audio con fallbacks silenciosos
+  // Cargar audio con fallbacks silenciosos - versión simplificada
   loadAudio() {
-    // Simple approach: create audio objects with proper error handling
-    const createSafeAudio = (key, options = {}) => {
-      try {
-        // Check if audio already exists
-        if (this.scene.sound.get(key)) {
-          return;
-        }
-
-        // Create a simple silent sound
-        const audioConfig = {
-          volume: 0,
-          loop: options.loop || false
-        };
-
-        // Use Phaser's built-in empty sound creation
-        this.scene.sound.add(key, audioConfig);
-        
-      } catch (error) {
-        console.warn(`Could not create audio ${key}:`, error);
-        // Create a minimal fallback
-        if (!this.scene.sound.get(key)) {
-          // Attach a minimal object to prevent errors
-          const dummyAudio = {
-            play: () => {},
-            stop: () => {},
-            setVolume: () => {},
-            destroy: () => {}
-          };
-          this.scene.sound._sounds[key] = dummyAudio;
-        }
-      }
-    };
-
-    // Create all required audio objects
-    createSafeAudio('shoot');
-    createSafeAudio('explosion');
-    createSafeAudio('bgMusic', { loop: true });
-    createSafeAudio('powerup');
+    // Para evitar errores de audio, simplemente no cargamos audio real
+    // Las escenas crearán sus propios objetos de audio mock
+    console.log('Audio loading skipped - using scene-level audio management');
   }
 
   // Cargar assets avanzados para demos más complejas
