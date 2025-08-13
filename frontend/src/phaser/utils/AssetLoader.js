@@ -137,6 +137,7 @@ export class AssetLoader {
       
       graphics.generateTexture('starfield', 800, 600);
       graphics.destroy();
+      window.phaserTexturesCreated.add('starfield');
     } catch (error) {
       console.error('Error creating starfield:', error);
       // Create simple fallback
