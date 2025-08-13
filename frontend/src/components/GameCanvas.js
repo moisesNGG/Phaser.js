@@ -1,24 +1,74 @@
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef, useState, useEffect, useRef } from "react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Play, Pause, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import Phaser from 'phaser';
+import { GAME_CONFIG } from '../phaser/GameConfig';
 
 const GameCanvas = forwardRef(({ isRunning, onToggle }, ref) => {
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
   const [level, setLevel] = useState(1);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [gameInstance, setGameInstance] = useState(null);
+  const gameContainerRef = useRef(null);
+
+  useEffect(() => {
+    if (isRunning && !gameInstance && gameContainerRef.current) {
+      // Crear nueva instancia del juego
+      const config = {
+        ...GAME_CONFIG,
+        parent: gameContainerRef.current,
+      };
+      
+      const game = new Phaser.Game(config);
+      setGameInstance(game);
+      
+      // Escuchar eventos del juego
+      game.events.on('score-update', (newScore) => {
+        setScore(newScore);
+      });
+      
+      game.events.on('lives-update', (newLives) => {
+        setLives(newLives);
+      });
+      
+      game.events.on('level-update', (newLevel) => {
+        setLevel(newLevel);
+      });
+    } else if (!isRunning && gameInstance) {
+      // Pausar el juego si está corriendo
+      gameInstance.scene.pause('SpaceShooterScene');
+    } else if (isRunning && gameInstance) {
+      // Reanudar el juego
+      gameInstance.scene.resume('SpaceShooterScene');
+    }
+    
+    return () => {
+      if (gameInstance && !isRunning) {
+        // No destruir completamente, solo pausar
+      }
+    };
+  }, [isRunning, gameInstance]);
 
   const handleReset = () => {
+    if (gameInstance) {
+      gameInstance.scene.restart('SpaceShooterScene');
+    }
     setScore(0);
     setLives(3);
     setLevel(1);
-    // Reset game logic will be implemented with Phaser.js
   };
 
   const toggleSound = () => {
     setSoundEnabled(!soundEnabled);
-    // Sound toggle logic will be implemented with Phaser.js
+    if (gameInstance) {
+      if (soundEnabled) {
+        gameInstance.sound.mute = true;
+      } else {
+        gameInstance.sound.mute = false;
+      }
+    }
   };
 
   return (
