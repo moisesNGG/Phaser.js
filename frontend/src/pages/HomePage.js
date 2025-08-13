@@ -45,6 +45,18 @@ const HomePage = () => {
     setCompletedSections(prev => ({ ...prev, [section]: true }));
   };
 
+  const handleStartDemo = () => {
+    setActiveTab("basico");
+    // Scroll to demo section
+    document.querySelector('[data-state="active"]')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleViewFinalGame = () => {
+    setActiveTab("juego");
+    // Scroll to game section
+    document.querySelector('[data-state="active"]')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen text-white">
       {/* Hero Section */}
