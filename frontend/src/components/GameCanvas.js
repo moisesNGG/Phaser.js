@@ -125,8 +125,14 @@ const GameCanvas = forwardRef(({ isRunning, onToggle }, ref) => {
   }, [isRunning, gameInstance, gameReady]);
 
   const handleReset = () => {
-    if (gameInstance) {
-      gameInstance.scene.restart('SpaceShooterScene');
+    if (gameInstance && gameReady) {
+      try {
+        if (gameInstance.scene && gameInstance.scene.scenes.length > 0) {
+          gameInstance.scene.restart('SpaceShooterScene');
+        }
+      } catch (error) {
+        console.warn('Error restarting game:', error);
+      }
     }
     setScore(0);
     setLives(3);
@@ -135,11 +141,15 @@ const GameCanvas = forwardRef(({ isRunning, onToggle }, ref) => {
 
   const toggleSound = () => {
     setSoundEnabled(!soundEnabled);
-    if (gameInstance) {
-      if (soundEnabled) {
-        gameInstance.sound.mute = true;
-      } else {
-        gameInstance.sound.mute = false;
+    if (gameInstance && gameReady) {
+      try {
+        if (soundEnabled) {
+          gameInstance.sound.mute = true;
+        } else {
+          gameInstance.sound.mute = false;
+        }
+      } catch (error) {
+        console.warn('Error toggling sound:', error);
       }
     }
   };
