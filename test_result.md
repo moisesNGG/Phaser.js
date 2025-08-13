@@ -217,7 +217,7 @@ frontend:
     file: "/app/frontend/src/phaser/scenes/"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
@@ -231,6 +231,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "🎉 FIXED: Intermediate demos now working with Canvas rendering. Successfully tested first intermediate demo - executes properly with Canvas renderer. Context management prevents conflicts between demo instances."
+      - working: true
+        agent: "testing"
+        comment: "✅ CONFIRMED WORKING: Intermediate demos section fully functional! Found 3 demo cards as expected. First intermediate demo executes successfully - 'Ejecutar' button found, demo starts properly, 'Detener' button appears and works correctly. Canvas rendering working perfectly. Ready for presentation!"
 
   - task: "Advanced Phaser Demos"
     implemented: true
