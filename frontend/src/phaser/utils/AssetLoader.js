@@ -149,18 +149,60 @@ export class AssetLoader {
 
   // Cargar audio con fallbacks silenciosos
   loadAudio() {
-    // En una implementación real, aquí cargaríamos archivos de audio
-    // Por ahora creamos objetos de sonido falsos para evitar errores
-    this.scene.load.on('complete', () => {
-      // Crear objetos de sonido mock si no se cargaron archivos reales
-      if (!this.scene.cache.audio.exists('shoot')) {
-        this.scene.sound.add('shoot', { volume: 0 }); // Sonido silencioso
-      }
-      if (!this.scene.cache.audio.exists('explosion')) {
-        this.scene.sound.add('explosion', { volume: 0 });
-      }
-      if (!this.scene.cache.audio.exists('bgMusic')) {
-        this.scene.sound.add('bgMusic', { volume: 0, loop: true });
+    try {
+      // Create silent audio objects immediately to avoid cache errors
+      const audioContext = this.scene.sound.context;
+      
+      // Create minimal audio buffers for each sound
+      const createSilentAudio = (key, duration = 0.1) => {
+        if (!this.scene.sound.get(key)) {
+          // Create a simple silent audio buffer
+          const buffer = audioContext.createBuffer(1, Math.floor(audioContext.sampleRate * duration), audioContext.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < data.length; i++) {
+            data[i] = 0; // Silent
+          }
+          
+          // Add to Phaser's audio cache with minimal config
+          this.scene.sound.add(key, { 
+            volume: 0,
+            loop: key === 'bgMusic' 
+          });
+        }
+      };
+
+      // Pre-create all required audio keys
+      const audioKeys = ['shoot', 'explosion', 'bgMusic', 'powerup'];
+      audioKeys.forEach(key => {
+        try {
+          createSilentAudio(key);
+        } catch (error) {
+          console.warn(`Could not create audio for ${key}:`, error);
+        }
+      });
+
+    } catch (error) {
+      console.warn('Audio system not available, using silent fallback:', error);
+      // Fallback: create dummy audio manager
+      this.createDummyAudio();
+    }
+  }
+
+  // Create dummy audio objects for environments without audio support
+  createDummyAudio() {
+    const dummySound = {
+      play: () => {},
+      stop: () => {},
+      pause: () => {},
+      resume: () => {},
+      setVolume: () => {},
+      setLoop: () => {}
+    };
+
+    const audioKeys = ['shoot', 'explosion', 'bgMusic', 'powerup'];
+    audioKeys.forEach(key => {
+      if (!this.scene.sound.get(key)) {
+        this.scene.sound.add(key, dummySound);
       }
     });
   }
