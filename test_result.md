@@ -213,6 +213,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "✅ CONFIRMED WORKING: Basic demos section fully functional! Found 3 demo cards as expected. First demo executes successfully - 'Ejecutar' button found, demo starts properly, canvas element visible and rendering, 'Detener' button appears and works correctly. Canvas rendering working perfectly. Ready for presentation!"
+      - working: true
+        agent: "testing"
+        comment: "✅ MOSTLY WORKING: Basic demos section functional but with issues. Found 9 cards instead of 3 (data duplication). First demo 'Sprites Básicos' works correctly - starts and stops properly. Phaser v3.90.0 loads with Canvas rendering. Minor: Data display issue showing wrong number of cards, but core functionality works."
 
   - task: "Intermediate Phaser Demos"
     implemented: true
