@@ -1,4 +1,4 @@
-;  // Global texture registry to prevent WebGL context conflicts
+// Global texture registry to prevent WebGL context conflicts
 window.phaserTexturesCreated = window.phaserTexturesCreated || new Set();
 
 export class AssetLoader {
