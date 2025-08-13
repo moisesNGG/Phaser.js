@@ -52,12 +52,34 @@ class SpaceShooterScene extends Phaser.Scene {
     this.assetLoader = new AssetLoader(this);
     this.assetLoader.loadAdvancedAssets();
     
-    // Load background music and sounds (will be mock for now)
-    this.load.on('complete', () => {
-      this.shootSound = this.sound.add('shoot', { volume: 0.3 });
-      this.explosionSound = this.sound.add('explosion', { volume: 0.5 });
-      this.backgroundMusic = this.sound.add('bgMusic', { volume: 0.2, loop: true });
-    });
+    // Initialize audio with safe fallbacks
+    this.initAudio();
+  }
+
+  initAudio() {
+    // Create safe audio objects that won't cause errors
+    try {
+      this.shootSound = { 
+        play: () => {}, 
+        setVolume: () => {},
+        stop: () => {} 
+      };
+      this.explosionSound = { 
+        play: () => {}, 
+        setVolume: () => {},
+        stop: () => {} 
+      };
+      this.backgroundMusic = { 
+        play: () => {}, 
+        stop: () => {},
+        setVolume: () => {},
+        setLoop: () => {} 
+      };
+      
+      console.log('Audio initialized with safe fallbacks');
+    } catch (error) {
+      console.warn('Audio initialization failed:', error);
+    }
   }
 
   create() {
