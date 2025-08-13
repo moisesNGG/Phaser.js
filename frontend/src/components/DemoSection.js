@@ -77,7 +77,17 @@ const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) =
         });
       }
     } else {
-      // CRITICAL FIX: Stop all other running demos first to prevent WebGL context conflicts
+      // CRITICAL FIX: Stop main game and all other demos to prevent WebGL context conflicts
+      if (window.phaserMainGame) {
+        try {
+          window.phaserMainGame.destroy(true, false);
+          window.phaserMainGame = null;
+        } catch (error) {
+          console.warn('Error stopping main game:', error);
+        }
+      }
+      
+      // Stop all other running demos
       Object.keys(runningDemos).forEach(otherDemoId => {
         if (runningDemos[otherDemoId] && runningDemos[otherDemoId].game) {
           try {
@@ -90,6 +100,9 @@ const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) =
       
       // Clear all running demos
       setRunningDemos({});
+      
+      // Initialize global demo instances registry
+      window.phaserDemoInstances = window.phaserDemoInstances || {};
       
       // Wait a moment for cleanup before starting new demo
       setTimeout(() => {
@@ -117,6 +130,8 @@ const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) =
                   if (game.renderer && game.renderer.gl) {
                     console.log(`WebGL context active for demo ${demoId}`);
                   }
+                  // Register in global registry
+                  window.phaserDemoInstances[demoId] = game;
                 }
               };
               
