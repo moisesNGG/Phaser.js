@@ -184,10 +184,10 @@ const GameCanvas = forwardRef(({ isRunning, onToggle }, ref) => {
         <div 
           ref={gameContainerRef}
           className="w-full h-full"
-          style={{ display: isRunning ? 'block' : 'none' }}
+          style={{ display: (isRunning && gameReady) ? 'block' : 'none' }}
         />
         
-        {!isRunning && (
+        {(!isRunning || !gameReady) && (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
             <div className="bg-gradient-to-br from-orange-600 to-red-600 rounded-full w-20 h-20 flex items-center justify-center mb-4 animate-pulse">
               <Play className="w-10 h-10 text-white ml-1" />
@@ -197,6 +197,11 @@ const GameCanvas = forwardRef(({ isRunning, onToggle }, ref) => {
               Usa las flechas para moverte, espacio para disparar. 
               Derrota enemigos y esquiva asteroides para sobrevivir.
             </p>
+            {!gameReady && isRunning && (
+              <div className="text-cyan-400 text-sm animate-pulse">
+                Cargando juego...
+              </div>
+            )}
             <div className="flex gap-2 text-sm text-gray-400">
               <div className="flex items-center gap-1">
                 <span className="w-6 h-4 bg-white/20 rounded text-center text-xs">←→</span>
@@ -211,7 +216,7 @@ const GameCanvas = forwardRef(({ isRunning, onToggle }, ref) => {
         )}
 
         {/* Game Effects Overlay */}
-        {isRunning && (
+        {isRunning && gameReady && (
           <div className="absolute inset-0 pointer-events-none">
             {/* Simulated particle effects */}
             <div className="absolute top-4 left-4 w-2 h-2 bg-cyan-400 rounded-full animate-ping"></div>
