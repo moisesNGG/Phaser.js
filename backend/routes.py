@@ -206,8 +206,9 @@ this.player.setPipeline('Light2D');"""
 async def get_demos(level: Optional[str] = Query(None, description="Filtrar por nivel: basic, intermediate, advanced")):
     """Obtener todas las demos o filtrar por nivel"""
     try:
+        database = get_database()
         # Verificar si ya existen demos en la base de datos
-        count = await db.demos.count_documents({})
+        count = await database.demos.count_documents({})
         
         # Si no hay demos, insertar las demos iniciales
         if count == 0:
@@ -217,14 +218,14 @@ async def get_demos(level: Optional[str] = Query(None, description="Filtrar por 
                 initial_demos.append(demo.dict())
             
             if initial_demos:
-                await db.demos.insert_many(initial_demos)
+                await database.demos.insert_many(initial_demos)
         
         # Construir filtro
         filter_dict = {}
         if level:
             filter_dict["level"] = level
         
-        demos = await db.demos.find(filter_dict).to_list(1000)
+        demos = await database.demos.find(filter_dict).to_list(1000)
         return [Demo(**demo) for demo in demos]
     
     except Exception as e:
