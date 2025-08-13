@@ -68,17 +68,23 @@ const GameCanvas = forwardRef(({ isRunning, onToggle }, ref) => {
           gameContainerRef.current.innerHTML = '';
         }
 
-        // Enhanced game configuration with better error handling
+        // Enhanced game configuration with Canvas rendering for stability
         const config = {
           ...GAME_CONFIG,
           parent: gameContainerRef.current,
-          type: Phaser.AUTO, // Let Phaser decide WebGL vs Canvas
+          type: Phaser.CANVAS, // Force Canvas rendering to avoid WebGL conflicts
           failIfMajorPerformanceCaveat: false,
           powerPreference: 'low-power',
+          render: {
+            pixelArt: false,
+            antialias: false,
+            roundPixels: true
+          },
           callbacks: {
             postBoot: function(game) {
               if (mountedRef.current) {
                 setGameReady(true);
+                console.log(`Main game started with ${game.renderer.type === 1 ? 'Canvas' : 'WebGL'} renderer`);
                 // Register this as the main game instance
                 window.phaserMainGame = game;
               }
