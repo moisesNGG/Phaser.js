@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
@@ -13,18 +13,35 @@ import FeatureCard from "../components/FeatureCard";
 const HomePage = () => {
   const [activeDemo, setActiveDemo] = useState(null);
   const [gameRunning, setGameRunning] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [completedSections, setCompletedSections] = useState({
+    basico: false,
+    intermedio: false,
+    avanzado: false,
+    juego: false
+  });
   const canvasRef = useRef(null);
+
+  useEffect(() => {
+    // Calcular progreso basado en secciones completadas
+    const completed = Object.values(completedSections).filter(Boolean).length;
+    setProgress((completed / 4) * 100);
+  }, [completedSections]);
 
   const handleDemoPlay = (demoId) => {
     setActiveDemo(demoId);
-    // Mock functionality - will be replaced with actual Phaser.js implementation
-    setTimeout(() => {
-      setActiveDemo(null);
-    }, 3000);
+    // El componente DemoSection maneja la ejecución real
   };
 
   const handleGameToggle = () => {
     setGameRunning(!gameRunning);
+    if (!gameRunning) {
+      setCompletedSections(prev => ({ ...prev, juego: true }));
+    }
+  };
+
+  const markSectionCompleted = (section) => {
+    setCompletedSections(prev => ({ ...prev, [section]: true }));
   };
 
   return (
