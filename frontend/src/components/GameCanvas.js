@@ -11,45 +11,118 @@ const GameCanvas = forwardRef(({ isRunning, onToggle }, ref) => {
   const [level, setLevel] = useState(1);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [gameInstance, setGameInstance] = useState(null);
+  const [gameReady, setGameReady] = useState(false);
   const gameContainerRef = useRef(null);
+  const mountedRef = useRef(true);
+
+  // Cleanup function to properly destroy Phaser game
+  const cleanupGame = () => {
+    if (gameInstance) {
+      try {
+        // Remove event listeners
+        gameInstance.events.off('score-update');
+        gameInstance.events.off('lives-update');
+        gameInstance.events.off('level-update');
+        
+        // Destroy the game instance
+        gameInstance.destroy(true, false);
+      } catch (error) {
+        console.warn('Error destroying game:', error);
+      }
+      setGameInstance(null);
+      setGameReady(false);
+    }
+  };
 
   useEffect(() => {
-    if (isRunning && !gameInstance && gameContainerRef.current) {
-      // Crear nueva instancia del juego
-      const config = {
-        ...GAME_CONFIG,
-        parent: gameContainerRef.current,
-      };
-      
-      const game = new Phaser.Game(config);
-      setGameInstance(game);
-      
-      // Escuchar eventos del juego
-      game.events.on('score-update', (newScore) => {
-        setScore(newScore);
-      });
-      
-      game.events.on('lives-update', (newLives) => {
-        setLives(newLives);
-      });
-      
-      game.events.on('level-update', (newLevel) => {
-        setLevel(newLevel);
-      });
-    } else if (!isRunning && gameInstance) {
-      // Pausar el juego si está corriendo
-      gameInstance.scene.pause('SpaceShooterScene');
-    } else if (isRunning && gameInstance) {
-      // Reanudar el juego
-      gameInstance.scene.resume('SpaceShooterScene');
-    }
+    mountedRef.current = true;
     
     return () => {
-      if (gameInstance && !isRunning) {
-        // No destruir completamente, solo pausar
-      }
+      mountedRef.current = false;
+      cleanupGame();
     };
-  }, [isRunning, gameInstance]);
+  }, []);
+
+  useEffect(() => {
+    if (!mountedRef.current) return;
+
+    if (isRunning && !gameInstance && gameContainerRef.current) {
+      try {
+        // Clear any existing canvas
+        if (gameContainerRef.current) {
+          gameContainerRef.current.innerHTML = '';
+        }
+
+        // Enhanced game configuration with better error handling
+        const config = {
+          ...GAME_CONFIG,
+          parent: gameContainerRef.current,
+          type: Phaser.AUTO, // Let Phaser decide WebGL vs Canvas
+          failIfMajorPerformanceCaveat: false,
+          powerPreference: 'low-power',
+          callbacks: {
+            postBoot: function(game) {
+              if (mountedRef.current) {
+                setGameReady(true);
+              }
+            }
+          },
+          canvas: null, // Let Phaser create its own canvas
+          context: null, // Let Phaser create its own context
+        };
+        
+        const game = new Phaser.Game(config);
+        
+        if (mountedRef.current) {
+          setGameInstance(game);
+          
+          // Setup event listeners with error handling
+          const handleScoreUpdate = (newScore) => {
+            if (mountedRef.current) {
+              setScore(newScore);
+            }
+          };
+          
+          const handleLivesUpdate = (newLives) => {
+            if (mountedRef.current) {
+              setLives(newLives);
+            }
+          };
+          
+          const handleLevelUpdate = (newLevel) => {
+            if (mountedRef.current) {
+              setLevel(newLevel);
+            }
+          };
+          
+          game.events.on('score-update', handleScoreUpdate);
+          game.events.on('lives-update', handleLivesUpdate);
+          game.events.on('level-update', handleLevelUpdate);
+        }
+      } catch (error) {
+        console.error('Error creating Phaser game:', error);
+        setGameReady(false);
+      }
+    } else if (!isRunning && gameInstance && gameReady) {
+      // Pause the game scene
+      try {
+        if (gameInstance.scene && gameInstance.scene.scenes.length > 0) {
+          gameInstance.scene.pause('SpaceShooterScene');
+        }
+      } catch (error) {
+        console.warn('Error pausing game:', error);
+      }
+    } else if (isRunning && gameInstance && gameReady) {
+      // Resume the game scene
+      try {
+        if (gameInstance.scene && gameInstance.scene.scenes.length > 0) {
+          gameInstance.scene.resume('SpaceShooterScene');
+        }
+      } catch (error) {
+        console.warn('Error resuming game:', error);
+      }
+    }
+  }, [isRunning, gameInstance, gameReady]);
 
   const handleReset = () => {
     if (gameInstance) {
