@@ -313,3 +313,5 @@ agent_communication:
     message: "✅ BACKEND TESTING COMPLETE: All 15 backend API tests passed (100% success rate). Fixed critical database connection issue in routes.py. All endpoints working: health check, demos CRUD, score system, leaderboard, and statistics. Backend is fully functional and ready for production."
   - agent: "testing"
     message: "🚨 CRITICAL FRONTEND ISSUES FOUND: Application shows red error screen with 'Uncaught runtime errors' including WebGL/Framebuffer issues. Basic navigation works but demos have major problems. Space Shooter game section not loading. Multiple WebGL rendering errors prevent proper exhibition use. IMMEDIATE ATTENTION REQUIRED."
+  - agent: "main"
+    message: "STATUS UPDATE: Current manual testing shows navigation is working correctly (all tabs switch properly). However, hero section buttons 'Comenzar Demo' and 'Ver Juego Final' don't navigate to correct tabs. Need to verify if previous WebGL issues are resolved and fix button navigation. Backend appears stable. Ready for comprehensive testing."
