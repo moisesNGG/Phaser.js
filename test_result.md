@@ -239,7 +239,7 @@ frontend:
     implemented: true
     working: false
     file: "/app/frontend/src/phaser/scenes/"
-    stuck_count: 2
+    stuck_count: 3
     priority: "high"
     needs_retesting: false
     status_history:
@@ -252,6 +252,9 @@ frontend:
       - working: false
         agent: "testing"
         comment: "❌ CRITICAL: All 3 advanced demos completely non-functional (0% success rate). Some demos missing 'Ejecutar' buttons, others fail to start. WebGL/Framebuffer errors prevent proper rendering. Section shows wrong demo titles (displaying basic demo names instead of advanced)."
+      - working: false
+        agent: "testing"
+        comment: "❌ STILL BROKEN: Advanced demos section still has issues. Found 3 demo cards but 'Ejecutar' button not found for first advanced demo. While navigation works and cards are visible, the execution functionality is missing or broken. This section needs main agent attention before presentation."
 
   - task: "GameCanvas Integration"
     implemented: true
