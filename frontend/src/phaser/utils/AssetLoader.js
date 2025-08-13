@@ -17,37 +17,59 @@ export class AssetLoader {
 
   // Crear sprites básicos usando gráficos generados
   createBasicSprites() {
-    // Crear sprite del jugador
-    this.scene.add.graphics()
-      .fillStyle(0x00ff00)
-      .fillTriangle(16, 0, 0, 32, 32, 32)
-      .generateTexture('player', 32, 32);
+    // Crear sprite del jugador (nave triangular mejorada)
+    const playerGraphics = this.scene.add.graphics();
+    playerGraphics.fillStyle(0x00ff00);
+    playerGraphics.fillTriangle(16, 0, 0, 28, 32, 28);
+    playerGraphics.fillStyle(0x0080ff);
+    playerGraphics.fillRect(12, 24, 8, 8);
+    playerGraphics.fillStyle(0xffffff);
+    playerGraphics.fillCircle(16, 16, 3);
+    playerGraphics.generateTexture('player', 32, 32);
+    playerGraphics.destroy();
 
-    // Crear sprite de enemigo
-    this.scene.add.graphics()
-      .fillStyle(0xff0000)
-      .fillRect(0, 0, 24, 24)
-      .generateTexture('enemy', 24, 24);
+    // Crear sprite de enemigo (nave roja)
+    const enemyGraphics = this.scene.add.graphics();
+    enemyGraphics.fillStyle(0xff0000);
+    enemyGraphics.fillRect(0, 0, 24, 24);
+    enemyGraphics.fillStyle(0xff6666);
+    enemyGraphics.fillRect(4, 4, 16, 16);
+    enemyGraphics.fillStyle(0x660000);
+    enemyGraphics.fillCircle(12, 12, 4);
+    enemyGraphics.generateTexture('enemy', 24, 24);
+    enemyGraphics.destroy();
 
-    // Crear sprite de bala
-    this.scene.add.graphics()
-      .fillStyle(0xffff00)
-      .fillCircle(4, 4, 4)
-      .generateTexture('bullet', 8, 8);
+    // Crear sprite de bala (proyectil brillante)
+    const bulletGraphics = this.scene.add.graphics();
+    bulletGraphics.fillStyle(0xffff00);
+    bulletGraphics.fillCircle(4, 4, 4);
+    bulletGraphics.fillStyle(0xffffff);
+    bulletGraphics.fillCircle(4, 4, 2);
+    bulletGraphics.generateTexture('bullet', 8, 8);
+    bulletGraphics.destroy();
 
-    // Crear sprite de asteroide
-    this.scene.add.graphics()
-      .fillStyle(0x8B4513)
-      .fillCircle(20, 20, 20)
-      .generateTexture('asteroid', 40, 40);
+    // Crear sprite de asteroide (roca detallada)
+    const asteroidGraphics = this.scene.add.graphics();
+    asteroidGraphics.fillStyle(0x8B4513);
+    asteroidGraphics.fillCircle(20, 20, 18);
+    asteroidGraphics.fillStyle(0x654321);
+    asteroidGraphics.fillCircle(15, 15, 6);
+    asteroidGraphics.fillCircle(25, 25, 8);
+    asteroidGraphics.fillStyle(0x5D4037);
+    asteroidGraphics.fillCircle(22, 12, 4);
+    asteroidGraphics.generateTexture('asteroid', 40, 40);
+    asteroidGraphics.destroy();
 
-    // Crear partícula para efectos
-    this.scene.add.graphics()
-      .fillStyle(0xffffff)
-      .fillCircle(2, 2, 2)
-      .generateTexture('particle', 4, 4);
+    // Crear partícula mejorada (con brillo)
+    const particleGraphics = this.scene.add.graphics();
+    particleGraphics.fillStyle(0xffffff);
+    particleGraphics.fillCircle(2, 2, 2);
+    particleGraphics.fillStyle(0xffff00);
+    particleGraphics.fillCircle(2, 2, 1);
+    particleGraphics.generateTexture('particle', 4, 4);
+    particleGraphics.destroy();
 
-    // Crear fondo de estrellas
+    // Crear fondo de estrellas mejorado
     this.createStarField();
   }
 
