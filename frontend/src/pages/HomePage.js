@@ -82,9 +82,11 @@ const HomePage = () => {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-400">Progreso de la demostración</span>
-            <span className="text-cyan-400">3 de 4 secciones completadas</span>
+            <span className="text-cyan-400">
+              {Object.values(completedSections).filter(Boolean).length} de 4 secciones completadas
+            </span>
           </div>
-          <Progress value={75} className="mt-2 h-2" />
+          <Progress value={progress} className="mt-2 h-2" />
         </div>
       </div>
 
