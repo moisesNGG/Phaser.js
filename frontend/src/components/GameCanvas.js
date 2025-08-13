@@ -98,8 +98,8 @@ const GameCanvas = forwardRef(({ isRunning, onToggle }, ref) => {
 
       {/* Game Canvas Area */}
       <div className="aspect-video bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 rounded-lg relative overflow-hidden border border-white/10">
-        <canvas 
-          ref={ref}
+        <div 
+          ref={gameContainerRef}
           className="w-full h-full"
           style={{ display: isRunning ? 'block' : 'none' }}
         />
