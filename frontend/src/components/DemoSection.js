@@ -9,6 +9,25 @@ import { createDemoConfig } from '../phaser/GameConfig';
 const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) => {
   const [runningDemos, setRunningDemos] = useState({});
   const demoRefs = useRef({});
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    
+    return () => {
+      mountedRef.current = false;
+      // Cleanup all running demos
+      Object.keys(runningDemos).forEach(demoId => {
+        if (runningDemos[demoId] && runningDemos[demoId].game) {
+          try {
+            runningDemos[demoId].game.destroy(true, false);
+          } catch (error) {
+            console.warn('Error destroying demo:', error);
+          }
+        }
+      });
+    };
+  }, []);
 
   const getColorClasses = (color) => {
     const colors = {
@@ -35,48 +54,83 @@ const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) =
   };
 
   const handleDemoPlay = (demo) => {
+    if (!mountedRef.current) return;
+    
     const demoId = demo.id;
     const sceneName = getSceneNameFromDemo(demo);
     
     if (runningDemos[demoId]) {
       // Detener demo
-      if (runningDemos[demoId].game) {
-        runningDemos[demoId].game.destroy(true);
+      try {
+        if (runningDemos[demoId].game) {
+          runningDemos[demoId].game.destroy(true, false);
+        }
+      } catch (error) {
+        console.warn('Error stopping demo:', error);
       }
-      setRunningDemos(prev => {
-        const newState = { ...prev };
-        delete newState[demoId];
-        return newState;
-      });
+      
+      if (mountedRef.current) {
+        setRunningDemos(prev => {
+          const newState = { ...prev };
+          delete newState[demoId];
+          return newState;
+        });
+      }
     } else {
       // Iniciar demo
       const containerElement = demoRefs.current[demoId];
-      if (containerElement && sceneName) {
-        const config = createDemoConfig(sceneName, null);
-        if (config) {
-          config.parent = containerElement;
-          config.width = containerElement.clientWidth;
-          config.height = containerElement.clientHeight;
+      if (containerElement && sceneName && mountedRef.current) {
+        try {
+          // Clear container
+          containerElement.innerHTML = '';
           
-          const game = new Phaser.Game(config);
-          setRunningDemos(prev => ({
-            ...prev,
-            [demoId]: { game, sceneName }
-          }));
+          const config = createDemoConfig(sceneName, null);
+          if (config) {
+            config.parent = containerElement;
+            config.width = Math.min(containerElement.clientWidth, 400);
+            config.height = Math.min(containerElement.clientHeight, 300);
+            
+            // Enhanced error handling
+            config.callbacks = {
+              ...config.callbacks,
+              postBoot: function(game) {
+                console.log(`Demo ${demoId} loaded successfully`);
+              }
+            };
+            
+            const game = new Phaser.Game(config);
+            
+            if (mountedRef.current) {
+              setRunningDemos(prev => ({
+                ...prev,
+                [demoId]: { game, sceneName }
+              }));
+            }
+          }
+        } catch (error) {
+          console.error(`Error starting demo ${demoId}:`, error);
         }
       }
     }
     
-    if (onPlay) {
+    if (onPlay && mountedRef.current) {
       onPlay(demoId);
     }
   };
 
   const handleDemoReset = (demo) => {
+    if (!mountedRef.current) return;
+    
     const demoId = demo.id;
     if (runningDemos[demoId] && runningDemos[demoId].game) {
-      const sceneName = runningDemos[demoId].sceneName;
-      runningDemos[demoId].game.scene.restart(sceneName);
+      try {
+        const sceneName = runningDemos[demoId].sceneName;
+        if (runningDemos[demoId].game.scene) {
+          runningDemos[demoId].game.scene.restart(sceneName);
+        }
+      } catch (error) {
+        console.warn('Error resetting demo:', error);
+      }
     }
   };
 
