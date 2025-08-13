@@ -107,7 +107,7 @@ export class AssetLoader {
 
   // Crear campo de estrellas animado mejorado
   createStarField() {
-    if (this.scene.textures.exists('starfield')) return;
+    if (this.scene.textures.exists('starfield') || window.phaserTexturesCreated.has('starfield')) return;
 
     try {
       const graphics = this.scene.add.graphics();
