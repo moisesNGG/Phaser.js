@@ -239,7 +239,7 @@ frontend:
     implemented: true
     working: false
     file: "/app/frontend/src/phaser/scenes/"
-    stuck_count: 3
+    stuck_count: 4
     priority: "high"
     needs_retesting: false
     status_history:
@@ -255,6 +255,9 @@ frontend:
       - working: false
         agent: "testing"
         comment: "❌ STILL BROKEN: Advanced demos section still has issues. Found 3 demo cards but 'Ejecutar' button not found for first advanced demo. While navigation works and cards are visible, the execution functionality is missing or broken. This section needs main agent attention before presentation."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL COMPREHENSIVE TEST FAILURE: Advanced demos completely broken. Found 9 cards instead of 3 (data duplication issue). Demo 1: Missing 'Ejecutar' button (shows empty button, 'Detener', 'Reset'). Demo 2 & 3: Have 'Ejecutar' buttons but fail to start. JavaScript errors: 'Cannot read properties of undefined (reading duration)'. Multiple texture warnings. RED ERROR SCREEN with 'Uncaught runtime errors' prevents presentation use. IMMEDIATE MAIN AGENT ATTENTION REQUIRED."
 
   - task: "GameCanvas Integration"
     implemented: true
