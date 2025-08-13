@@ -131,25 +131,65 @@ export class AssetLoader {
   }
 
   createAdvancedTextures() {
-    // Crear textura para partículas más complejas
+    // Crear textura para partículas más complejas con gradiente
     const particleGraphics = this.scene.add.graphics();
-    const gradient = particleGraphics.createLinearGradient(0, 0, 8, 8);
-    gradient.addColorStop(0, '#ffffff');
-    gradient.addColorStop(0.5, '#ffff00');
-    gradient.addColorStop(1, '#ff0000');
     
-    particleGraphics.fillGradientStyle(gradient);
+    // Simulación de gradiente radial
+    particleGraphics.fillStyle(0xffffff, 1);
     particleGraphics.fillCircle(4, 4, 4);
+    particleGraphics.fillStyle(0xffff00, 0.8);
+    particleGraphics.fillCircle(4, 4, 3);
+    particleGraphics.fillStyle(0xff0000, 0.6);
+    particleGraphics.fillCircle(4, 4, 2);
+    
     particleGraphics.generateTexture('advancedParticle', 8, 8);
     particleGraphics.destroy();
 
-    // Crear sprite del jugador con más detalles
-    this.scene.add.graphics()
-      .fillStyle(0x00ff00)
-      .fillTriangle(16, 0, 0, 32, 32, 32)
-      .fillStyle(0x0000ff)
-      .fillRect(12, 28, 8, 4)
-      .generateTexture('detailedPlayer', 32, 32);
+    // Crear sprite del jugador con más detalles para demos avanzadas
+    const detailedPlayerGraphics = this.scene.add.graphics();
+    
+    // Cuerpo de la nave
+    detailedPlayerGraphics.fillStyle(0x00ff00);
+    detailedPlayerGraphics.fillTriangle(16, 0, 4, 24, 28, 24);
+    
+    // Cabina
+    detailedPlayerGraphics.fillStyle(0x0066ff);
+    detailedPlayerGraphics.fillRect(12, 18, 8, 6);
+    
+    // Motores
+    detailedPlayerGraphics.fillStyle(0xff6600);
+    detailedPlayerGraphics.fillRect(8, 24, 4, 8);
+    detailedPlayerGraphics.fillRect(20, 24, 4, 8);
+    
+    // Luces
+    detailedPlayerGraphics.fillStyle(0xffffff);
+    detailedPlayerGraphics.fillCircle(12, 20, 1);
+    detailedPlayerGraphics.fillCircle(20, 20, 1);
+    
+    detailedPlayerGraphics.generateTexture('detailedPlayer', 32, 32);
+    detailedPlayerGraphics.destroy();
+    
+    // Crear texturas adicionales para efectos avanzados
+    this.createEffectTextures();
+  }
+
+  createEffectTextures() {
+    // Textura de chispa para efectos de explosión
+    const sparkGraphics = this.scene.add.graphics();
+    sparkGraphics.fillStyle(0xffffff);
+    sparkGraphics.fillRect(0, 1, 4, 1);
+    sparkGraphics.fillRect(1, 0, 1, 4);
+    sparkGraphics.generateTexture('spark', 4, 4);
+    sparkGraphics.destroy();
+    
+    // Textura de humo
+    const smokeGraphics = this.scene.add.graphics();
+    smokeGraphics.fillStyle(0x666666, 0.6);
+    smokeGraphics.fillCircle(8, 8, 8);
+    smokeGraphics.fillStyle(0x999999, 0.4);
+    smokeGraphics.fillCircle(8, 8, 6);
+    smokeGraphics.generateTexture('smoke', 16, 16);
+    smokeGraphics.destroy();
   }
 
   // Función de utilidad para cargar spritesheets
