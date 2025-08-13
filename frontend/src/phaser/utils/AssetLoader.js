@@ -1,5 +1,5 @@
-// Utilidad para cargar assets de manera consistente en todas las escenas
-import { COMMON_ASSETS } from '../GameConfig';
+;  // Global texture registry to prevent WebGL context conflicts
+window.phaserTexturesCreated = window.phaserTexturesCreated || new Set();
 
 export class AssetLoader {
   constructor(scene) {
@@ -17,8 +17,16 @@ export class AssetLoader {
 
   // Crear sprites básicos usando gráficos generados
   createBasicSprites() {
-    // Check if textures already exist to avoid conflicts
-    if (this.scene.textures.exists('player')) return;
+    // CRITICAL FIX: Check global texture registry to prevent conflicts across contexts
+    const textureKeys = ['player', 'enemy', 'bullet', 'asteroid', 'particle', 'starfield'];
+    const existingTextures = textureKeys.filter(key => 
+      this.scene.textures.exists(key) || window.phaserTexturesCreated.has(key)
+    );
+    
+    if (existingTextures.length === textureKeys.length) {
+      console.log('All basic textures already exist, skipping creation');
+      return;
+    }
 
     try {
       // Crear sprite del jugador (nave triangular mejorada)
