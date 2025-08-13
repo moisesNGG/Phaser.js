@@ -149,62 +149,44 @@ export class AssetLoader {
 
   // Cargar audio con fallbacks silenciosos
   loadAudio() {
-    try {
-      // Create silent audio objects immediately to avoid cache errors
-      const audioContext = this.scene.sound.context;
-      
-      // Create minimal audio buffers for each sound
-      const createSilentAudio = (key, duration = 0.1) => {
+    // Simple approach: create audio objects with proper error handling
+    const createSafeAudio = (key, options = {}) => {
+      try {
+        // Check if audio already exists
+        if (this.scene.sound.get(key)) {
+          return;
+        }
+
+        // Create a simple silent sound
+        const audioConfig = {
+          volume: 0,
+          loop: options.loop || false
+        };
+
+        // Use Phaser's built-in empty sound creation
+        this.scene.sound.add(key, audioConfig);
+        
+      } catch (error) {
+        console.warn(`Could not create audio ${key}:`, error);
+        // Create a minimal fallback
         if (!this.scene.sound.get(key)) {
-          // Create a simple silent audio buffer
-          const buffer = audioContext.createBuffer(1, Math.floor(audioContext.sampleRate * duration), audioContext.sampleRate);
-          const data = buffer.getChannelData(0);
-          for (let i = 0; i < data.length; i++) {
-            data[i] = 0; // Silent
-          }
-          
-          // Add to Phaser's audio cache with minimal config
-          this.scene.sound.add(key, { 
-            volume: 0,
-            loop: key === 'bgMusic' 
-          });
+          // Attach a minimal object to prevent errors
+          const dummyAudio = {
+            play: () => {},
+            stop: () => {},
+            setVolume: () => {},
+            destroy: () => {}
+          };
+          this.scene.sound._sounds[key] = dummyAudio;
         }
-      };
-
-      // Pre-create all required audio keys
-      const audioKeys = ['shoot', 'explosion', 'bgMusic', 'powerup'];
-      audioKeys.forEach(key => {
-        try {
-          createSilentAudio(key);
-        } catch (error) {
-          console.warn(`Could not create audio for ${key}:`, error);
-        }
-      });
-
-    } catch (error) {
-      console.warn('Audio system not available, using silent fallback:', error);
-      // Fallback: create dummy audio manager
-      this.createDummyAudio();
-    }
-  }
-
-  // Create dummy audio objects for environments without audio support
-  createDummyAudio() {
-    const dummySound = {
-      play: () => {},
-      stop: () => {},
-      pause: () => {},
-      resume: () => {},
-      setVolume: () => {},
-      setLoop: () => {}
+      }
     };
 
-    const audioKeys = ['shoot', 'explosion', 'bgMusic', 'powerup'];
-    audioKeys.forEach(key => {
-      if (!this.scene.sound.get(key)) {
-        this.scene.sound.add(key, dummySound);
-      }
-    });
+    // Create all required audio objects
+    createSafeAudio('shoot');
+    createSafeAudio('explosion');
+    createSafeAudio('bgMusic', { loop: true });
+    createSafeAudio('powerup');
   }
 
   // Cargar assets avanzados para demos más complejas
