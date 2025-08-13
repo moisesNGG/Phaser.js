@@ -6,6 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
+import routes
 from routes import router as api_routes
 
 ROOT_DIR = Path(__file__).parent
@@ -15,6 +16,9 @@ load_dotenv(ROOT_DIR / '.env')
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
+
+# Set database for routes module
+routes.set_database(db)
 
 # Create the main app without a prefix
 app = FastAPI(title="Phaser.js Demo API", description="Backend API for Phaser.js demonstration")
