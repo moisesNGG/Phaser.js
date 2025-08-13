@@ -14,7 +14,7 @@ import SpaceShooterScene from './scenes/SpaceShooterScene';
 
 // Configuración base para todas las demos
 export const DEMO_CONFIG = {
-  type: Phaser.AUTO, // Auto-detect WebGL or Canvas
+  type: Phaser.CANVAS, // Force Canvas rendering to avoid WebGL conflicts
   width: 800,
   height: 600,
   parent: null, // Se establecerá dinámicamente
@@ -44,21 +44,14 @@ export const DEMO_CONFIG = {
   },
   render: {
     pixelArt: false,
-    antialias: true,
+    antialias: false, // Disable antialiasing for Canvas
+    roundPixels: true, // Better performance on Canvas
     failIfMajorPerformanceCaveat: false,
     powerPreference: 'low-power'
   },
   callbacks: {
     postBoot: function(game) {
-      if (game.canvas) {
-        game.canvas.oncontextlost = function(event) {
-          console.warn('WebGL context lost, attempting recovery');
-          event.preventDefault();
-        };
-        game.canvas.oncontextrestored = function() {
-          console.log('WebGL context restored');
-        };
-      }
+      console.log(`Game booted with ${game.renderer.type === 1 ? 'Canvas' : 'WebGL'} renderer`);
     }
   }
 };
