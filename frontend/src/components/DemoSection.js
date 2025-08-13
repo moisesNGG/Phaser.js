@@ -1,0 +1,106 @@
+import React from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { Play, Pause, RotateCcw } from "lucide-react";
+
+const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) => {
+  const getColorClasses = (color) => {
+    const colors = {
+      cyan: {
+        gradient: "from-cyan-400 to-blue-400",
+        button: "bg-cyan-600 hover:bg-cyan-700",
+        border: "border-cyan-500/20",
+        badge: "bg-cyan-600/20 text-cyan-400 border-cyan-500/30"
+      },
+      purple: {
+        gradient: "from-purple-400 to-pink-400",
+        button: "bg-purple-600 hover:bg-purple-700",
+        border: "border-purple-500/20",
+        badge: "bg-purple-600/20 text-purple-400 border-purple-500/30"
+      },
+      pink: {
+        gradient: "from-pink-400 to-red-400",
+        button: "bg-pink-600 hover:bg-pink-700",
+        border: "border-pink-500/20",
+        badge: "bg-pink-600/20 text-pink-400 border-pink-500/30"
+      }
+    };
+    return colors[color] || colors.cyan;
+  };
+
+  const colorClasses = getColorClasses(color);
+
+  return (
+    <div>
+      <div className="text-center mb-8">
+        <h2 className={`text-3xl font-bold mb-4 bg-gradient-to-r ${colorClasses.gradient} bg-clip-text text-transparent`}>
+          {title}
+        </h2>
+        <p className="text-gray-400">{description}</p>
+      </div>
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {demos.map((demo, index) => (
+          <Card key={index} className={`bg-black/40 backdrop-blur-sm ${colorClasses.border} hover:bg-black/50 transition-all duration-300`}>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span className="text-lg">{demo.title}</span>
+                <Badge variant="outline" className={colorClasses.badge}>
+                  {demo.difficulty}
+                </Badge>
+              </CardTitle>
+              <CardDescription>{demo.description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="aspect-video bg-black/60 rounded-lg mb-4 flex items-center justify-center relative overflow-hidden">
+                {activeDemo === demo.id ? (
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 flex items-center justify-center">
+                    <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <div className={`w-16 h-16 bg-gradient-to-br ${colorClasses.gradient} rounded-full flex items-center justify-center mb-2 mx-auto opacity-60`}>
+                      <Play className="w-8 h-8 text-white ml-1" />
+                    </div>
+                    <span className="text-gray-400 text-sm">{demo.preview}</span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex gap-2 mb-4">
+                {demo.technologies.map((tech, techIndex) => (
+                  <Badge key={techIndex} variant="secondary" className="text-xs">
+                    {tech}
+                  </Badge>
+                ))}
+              </div>
+
+              <div className="flex gap-2">
+                <Button 
+                  size="sm" 
+                  className={colorClasses.button}
+                  onClick={() => onPlay(demo.id)}
+                  disabled={activeDemo === demo.id}
+                >
+                  {activeDemo === demo.id ? (
+                    <Pause className="w-4 h-4 mr-2" />
+                  ) : (
+                    <Play className="w-4 h-4 mr-2" />
+                  )}
+                  {activeDemo === demo.id ? 'Ejecutando' : 'Ejecutar'}
+                </Button>
+                <Button size="sm" variant="outline" className="border-white/20 hover:bg-white/10">
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Reset
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default DemoSection;
