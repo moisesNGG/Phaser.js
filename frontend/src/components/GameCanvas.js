@@ -48,6 +48,21 @@ const GameCanvas = forwardRef(({ isRunning, onToggle }, ref) => {
 
     if (isRunning && !gameInstance && gameContainerRef.current) {
       try {
+        // CRITICAL FIX: Clear any existing WebGL contexts by destroying other Phaser instances
+        // This prevents WebGL context conflicts
+        if (window.phaserDemoInstances) {
+          Object.values(window.phaserDemoInstances).forEach(instance => {
+            if (instance && instance.destroy) {
+              try {
+                instance.destroy(true, false);
+              } catch (error) {
+                console.warn('Error destroying demo instance:', error);
+              }
+            }
+          });
+          window.phaserDemoInstances = {};
+        }
+
         // Clear any existing canvas
         if (gameContainerRef.current) {
           gameContainerRef.current.innerHTML = '';
@@ -64,6 +79,8 @@ const GameCanvas = forwardRef(({ isRunning, onToggle }, ref) => {
             postBoot: function(game) {
               if (mountedRef.current) {
                 setGameReady(true);
+                // Register this as the main game instance
+                window.phaserMainGame = game;
               }
             }
           },
