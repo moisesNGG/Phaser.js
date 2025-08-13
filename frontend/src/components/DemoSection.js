@@ -1,10 +1,15 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { Play, Pause, RotateCcw } from "lucide-react";
+import { Play, Pause, RotateCcw, X } from "lucide-react";
+import Phaser from 'phaser';
+import { createDemoConfig } from '../phaser/GameConfig';
 
 const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) => {
+  const [runningDemos, setRunningDemos] = useState({});
+  const demoRefs = useRef({});
+
   const getColorClasses = (color) => {
     const colors = {
       cyan: {
@@ -27,6 +32,69 @@ const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) =
       }
     };
     return colors[color] || colors.cyan;
+  };
+
+  const handleDemoPlay = (demo) => {
+    const demoId = demo.id;
+    const sceneName = getSceneNameFromDemo(demo);
+    
+    if (runningDemos[demoId]) {
+      // Detener demo
+      if (runningDemos[demoId].game) {
+        runningDemos[demoId].game.destroy(true);
+      }
+      setRunningDemos(prev => {
+        const newState = { ...prev };
+        delete newState[demoId];
+        return newState;
+      });
+    } else {
+      // Iniciar demo
+      const containerElement = demoRefs.current[demoId];
+      if (containerElement && sceneName) {
+        const config = createDemoConfig(sceneName, null);
+        if (config) {
+          config.parent = containerElement;
+          config.width = containerElement.clientWidth;
+          config.height = containerElement.clientHeight;
+          
+          const game = new Phaser.Game(config);
+          setRunningDemos(prev => ({
+            ...prev,
+            [demoId]: { game, sceneName }
+          }));
+        }
+      }
+    }
+    
+    if (onPlay) {
+      onPlay(demoId);
+    }
+  };
+
+  const handleDemoReset = (demo) => {
+    const demoId = demo.id;
+    if (runningDemos[demoId] && runningDemos[demoId].game) {
+      const sceneName = runningDemos[demoId].sceneName;
+      runningDemos[demoId].game.scene.restart(sceneName);
+    }
+  };
+
+  const getSceneNameFromDemo = (demo) => {
+    // Mapear IDs de demo a nombres de escena
+    const sceneMapping = {
+      'sprite-basic': 'BasicSpritesScene',
+      'movement-basic': 'BasicMovementScene', 
+      'input-handling': 'InputHandlingScene',
+      'animations': 'AnimationScene',
+      'collisions': 'CollisionScene',
+      'audio-system': 'AudioScene',
+      'particle-system': 'ParticleScene',
+      'advanced-physics': 'AdvancedPhysicsScene',
+      'lighting-effects': 'LightingScene'
+    };
+    
+    return sceneMapping[demo.id] || null;
   };
 
   const colorClasses = getColorClasses(color);
