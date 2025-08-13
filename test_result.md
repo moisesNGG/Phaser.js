@@ -167,7 +167,7 @@ frontend:
     implemented: true
     working: false
     file: "/app/frontend/src/phaser/scenes/SpaceShooterScene.js"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -177,12 +177,15 @@ frontend:
       - working: false
         agent: "testing"
         comment: "❌ CRITICAL: Space Shooter game section not loading. Game title not found, 'Iniciar Juego' button not found. Application shows red error screen with WebGL/Framebuffer issues. Navigation to game section fails."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL: After comprehensive testing, Space Shooter game section completely missing. Red error screen with WebGL/Framebuffer errors prevents all functionality. Game title and 'Iniciar Juego' button not found. Application shows 'Uncaught runtime errors' with multiple WebGL rendering failures."
 
   - task: "Basic Phaser Demos"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/src/phaser/scenes/"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -192,12 +195,15 @@ frontend:
       - working: true
         agent: "testing"
         comment: "✅ PARTIAL SUCCESS: Basic demos section partially working. Found 3 demo cards. First demo (Sprites Básicos) can start and stop successfully. Phaser v3.90.0 loads correctly. Minor: WebGL warnings present but don't prevent basic functionality."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL: Fixed GameConfig.js preBoot callback issue but still major problems. Only 1/3 basic demos working (33% success rate). 'Sprites Básicos' partially works but has stop issues. 'Movimiento Simple' and 'Manejo de Entrada' fail to start. Red error screen with WebGL/Framebuffer issues prevents proper functionality."
 
   - task: "Intermediate Phaser Demos"
     implemented: true
     working: false
     file: "/app/frontend/src/phaser/scenes/"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -207,12 +213,15 @@ frontend:
       - working: false
         agent: "testing"
         comment: "❌ FAILED: Intermediate demos section has issues. Found 3 demo cards but play buttons not found for demos. Navigation to section works but demo execution fails."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL: All 3 intermediate demos completely non-functional (0% success rate). Some demos missing 'Ejecutar' buttons, others fail to start. WebGL/Framebuffer errors prevent proper rendering. Section shows wrong demo titles (displaying basic demo names instead of intermediate)."
 
   - task: "Advanced Phaser Demos"
     implemented: true
     working: false
     file: "/app/frontend/src/phaser/scenes/"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -222,12 +231,15 @@ frontend:
       - working: false
         agent: "testing"
         comment: "❌ FAILED: Advanced demos section has issues. Found 3 demo cards but play buttons not found for demos. Navigation to section works but demo execution fails."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL: All 3 advanced demos completely non-functional (0% success rate). Some demos missing 'Ejecutar' buttons, others fail to start. WebGL/Framebuffer errors prevent proper rendering. Section shows wrong demo titles (displaying basic demo names instead of advanced)."
 
   - task: "GameCanvas Integration"
     implemented: true
     working: false
     file: "/app/frontend/src/components/GameCanvas.js"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -237,12 +249,15 @@ frontend:
       - working: false
         agent: "testing"
         comment: "❌ CRITICAL: GameCanvas has major WebGL/Framebuffer issues. Application shows red error screen with 'Uncaught runtime errors'. Found 1 canvas element but rendering fails with WebGL errors."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL: GameCanvas completely broken with severe WebGL/Framebuffer errors. Red error screen shows 'Framebuffer status: Incomplete Attachment', WebGLFramebufferWrapper.createResource errors, WebGLRenderer.createFramebuffer errors, RenderTarget.init errors, TextureManager errors. Fundamental rendering system failure prevents any Phaser functionality."
 
   - task: "DemoSection Integration"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/src/components/DemoSection.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -252,6 +267,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "✅ PARTIAL SUCCESS: DemoSection navigation works correctly. All 4 tabs (Básico, Intermedio, Avanzado, Juego Final) are clickable and switch content. Basic section partially functional. Issues with intermediate/advanced sections and game section."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL: DemoSection has major data/rendering issues. Navigation works but demo content is wrong - intermediate and advanced sections show basic demo titles instead of correct demos. Overall success rate only 9% (1/11 features working). WebGL errors prevent proper demo execution."
 
   - task: "Asset Generation System"
     implemented: true
