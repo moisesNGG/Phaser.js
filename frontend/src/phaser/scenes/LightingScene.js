@@ -54,9 +54,9 @@ class LightingScene extends Phaser.Scene {
 
   createDarkBackground() {
     // Crear fondo oscuro
-    this.darkLayer = this.add.graphics();
-    this.darkLayer.fillStyle(0x000000, 0.9);
-    this.darkLayer.fillRect(0, 0, 800, 600);
+  this.darkLayer = this.add.graphics();
+  this.darkLayer.fillStyle(0x181818, 1);
+  this.darkLayer.fillRect(0, 0, 800, 600);
     
     // Crear capa de luz que se mezclará
     this.lightLayer = this.add.graphics();
@@ -76,7 +76,7 @@ class LightingScene extends Phaser.Scene {
     ];
 
     walls.forEach(wall => {
-      const wallObject = this.add.rectangle(wall.x, wall.y, wall.width, wall.height, 0x666666);
+      const wallObject = this.add.rectangle(wall.x, wall.y, wall.width, wall.height, 0x222222);
       this.illuminatedObjects.push(wallObject);
     });
 
@@ -86,7 +86,7 @@ class LightingScene extends Phaser.Scene {
       const y = Phaser.Math.Between(150, 450);
       const obj = this.add.image(x, y, ['enemy', 'asteroid', 'bullet'][i % 3]);
       obj.setScale(2);
-      obj.setTint(0x333333); // Inicialmente oscuros
+      obj.setTint(0x111111); // Mucho más oscuro por defecto
       this.illuminatedObjects.push(obj);
     }
   }
@@ -130,7 +130,7 @@ class LightingScene extends Phaser.Scene {
   createPlayer() {
     this.player = this.add.image(400, 300, 'detailedPlayer');
     this.player.setScale(2);
-    this.player.setTint(0x333333); // Inicialmente oscuro
+  this.player.setTint(0x111111); // Inicialmente muy oscuro
   }
 
   setupControls() {
@@ -147,9 +147,9 @@ class LightingScene extends Phaser.Scene {
   }
 
   createLightingControls() {
-    const controlsY = 100;
-    const buttonWidth = 100;
-    const buttonHeight = 25;
+  const controlsY = 100;
+  const buttonWidth = 120;
+  const buttonHeight = 40;
     
     // Control de luz ambiente
     this.add.text(50, controlsY - 30, 'Luz Ambiente:', {
@@ -166,26 +166,37 @@ class LightingScene extends Phaser.Scene {
 
     // Botones para controlar luces individuales
     const lightButtons = [
-      { name: 'Luz Principal', index: 0, x: 200, color: 0xffffff },
-      { name: 'Luz Roja', index: 1, x: 310, color: 0xff0000 },
-      { name: 'Luz Azul', index: 2, x: 420, color: 0x0066ff },
-      { name: 'Luz Verde', index: 3, x: 530, color: 0x00ff00 },
-      { name: 'Luz Mouse', index: 4, x: 640, color: 0xffff00 }
+      { name: 'Luz Principal', index: 0, x: 160, color: 0xffffff },
+      { name: 'Luz Roja', index: 1, x: 300, color: 0xff0000 },
+      { name: 'Luz Azul', index: 2, x: 440, color: 0x0066ff },
+      { name: 'Luz Verde', index: 3, x: 580, color: 0x00ff00 },
+      { name: 'Luz Mouse', index: 4, x: 720, color: 0xffff00 }
     ];
 
+    this.lightButtonRects = [];
+    this.lightButtonTexts = [];
     lightButtons.forEach(btn => {
-      const button = this.add.rectangle(btn.x, controlsY, buttonWidth, buttonHeight, btn.color, 0.7)
-        .setInteractive()
-        .on('pointerdown', () => this.toggleLight(btn.index))
-        .on('pointerover', () => button.setAlpha(0.9))
-        .on('pointerout', () => button.setAlpha(0.7));
+      const button = this.add.rectangle(btn.x, controlsY, buttonWidth, buttonHeight, btn.color, 0.8)
+        .setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
+          this.toggleLight(btn.index);
+          this.updateLightButtonStates();
+        })
+        .on('pointerover', () => button.setAlpha(1))
+        .on('pointerout', () => button.setAlpha(this.lightSources[btn.index]?.enabled ? 1 : 0.5));
 
-      this.add.text(btn.x, controlsY, btn.name, {
-        fontSize: '8px',
+      const text = this.add.text(btn.x, controlsY, btn.name, {
+        fontSize: '18px',
         fontFamily: 'Arial',
-        fill: '#000000'
+        fontStyle: 'bold',
+        fill: btn.index === 0 ? '#222' : '#fff',
+        stroke: '#000',
+        strokeThickness: 3
       }).setOrigin(0.5);
+      this.lightButtonRects.push(button);
+      this.lightButtonTexts.push(text);
     });
+  this.updateLightButtonStates();
 
     // Información de iluminación
     this.lightingInfo = this.add.text(20, 20, '', {
@@ -211,6 +222,21 @@ class LightingScene extends Phaser.Scene {
     if (this.lightSources[index]) {
       this.lightSources[index].enabled = !this.lightSources[index].enabled;
     }
+    this.updateLightButtonStates();
+  }
+
+  updateLightButtonStates() {
+    if (!this.lightButtonRects || !this.lightButtonTexts) return;
+    this.lightButtonRects.forEach((rect, i) => {
+      if (!this.lightSources || !this.lightSources[i]) return;
+      if (this.lightSources[i].enabled) {
+        rect.setAlpha(1);
+        rect.setStrokeStyle(4, 0xffffff, 1);
+      } else {
+        rect.setAlpha(0.5);
+        rect.setStrokeStyle(0, 0x000000, 0);
+      }
+    });
   }
 
   updateLights() {
@@ -273,39 +299,34 @@ class LightingScene extends Phaser.Scene {
       let totalIllumination = this.ambientLight;
       let averageColor = { r: 255, g: 255, b: 255 };
       let lightCount = 0;
-      
       this.lightSources.forEach(light => {
         if (!light.enabled) return;
-        
         const distance = Phaser.Math.Distance.Between(
           obj.x, obj.y, light.x, light.y
         );
-        
         if (distance < light.radius) {
           const lightStrength = (1 - distance / light.radius) * light.intensity;
           totalIllumination += lightStrength;
           lightCount++;
-          
           // Mezclar colores de luz
           const r = (light.color >> 16) & 0xff;
           const g = (light.color >> 8) & 0xff;
           const b = light.color & 0xff;
-          
           averageColor.r = (averageColor.r + r) / 2;
           averageColor.g = (averageColor.g + g) / 2;
           averageColor.b = (averageColor.b + b) / 2;
         }
       });
-      
-      // Aplicar iluminación al objeto
+      // Aplicar iluminación al objeto solo si tiene setTint
       totalIllumination = Math.min(totalIllumination, 1);
       const finalColor = Phaser.Display.Color.GetColor(
         Math.floor(averageColor.r * totalIllumination),
         Math.floor(averageColor.g * totalIllumination),
         Math.floor(averageColor.b * totalIllumination)
       );
-      
-      obj.setTint(finalColor);
+      if (typeof obj.setTint === 'function') {
+        obj.setTint(finalColor);
+      }
     });
     
     // Aplicar al jugador también

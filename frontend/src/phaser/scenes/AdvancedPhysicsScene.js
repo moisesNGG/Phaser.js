@@ -19,15 +19,17 @@ class AdvancedPhysicsScene extends Phaser.Scene {
     this.matter.world.setBounds(0, 0, 800, 600, 32, true, true, false, true);
     this.matter.world.engine.world.gravity.y = 0.8;
 
-    // Fondo
-    this.add.image(400, 300, 'starfield');
+    // Fondo y dimensiones dinámicas
+    const w = this.sys.game.scale.width;
+    const h = this.sys.game.scale.height;
+    this.add.image(w / 2, h / 2, 'starfield').setDisplaySize(w, h);
 
     // Título
-    this.add.text(400, 50, 'Demo: Físicas Avanzadas (Matter.js)', {
+    this.add.text(w / 2, 50, 'Demo: Físicas Avanzadas (Matter.js)', {
       fontSize: '24px',
       fontFamily: 'Arial',
       fill: '#ffffff'
-    }).setOrigin(0.5);
+    }).setOrigin(0.5, 0);
 
     // Crear objetos físicos
     this.createPhysicsObjects();
@@ -42,7 +44,7 @@ class AdvancedPhysicsScene extends Phaser.Scene {
     this.createControls();
 
     // Instrucciones
-    this.add.text(400, 570, 'Arrastra objetos con el mouse • Usa los controles para cambiar la física', {
+    this.add.text(w / 2, h * 0.96, 'Arrastra objetos con el mouse • Usa los controles para cambiar la física', {
       fontSize: '14px',
       fontFamily: 'Arial',
       fill: '#ffffff'
@@ -71,7 +73,7 @@ class AdvancedPhysicsScene extends Phaser.Scene {
         friction: 0.01,
         frictionAir: 0.01
       });
-      ball.setScale(3);
+  ball.setScale(0.05);
       ball.setTint(Phaser.Math.Between(0x0000ff, 0x00ffff));
       this.physicsObjects.push(ball);
     }
@@ -85,7 +87,7 @@ class AdvancedPhysicsScene extends Phaser.Scene {
         restitution: 0.3,
         friction: 0.7
       });
-      box.setScale(2);
+  box.setScale(0.05);
       box.setTint(Phaser.Math.Between(0xff0000, 0xff9999));
       this.physicsObjects.push(box);
     }
@@ -102,7 +104,7 @@ class AdvancedPhysicsScene extends Phaser.Scene {
         restitution: 0.6,
         friction: 0.3
       });
-      triangle.setScale(1.5);
+  triangle.setScale(0.05);
       triangle.setTint(Phaser.Math.Between(0x00ff00, 0x99ff99));
       this.physicsObjects.push(triangle);
     }
@@ -123,7 +125,7 @@ class AdvancedPhysicsScene extends Phaser.Scene {
         restitution: 0.3,
         friction: 0.1
       });
-      link.setScale(4);
+  link.setScale(0.05);
       link.setTint(0xcccccc);
       chainObjects.push(link);
       this.physicsObjects.push(link);
@@ -136,7 +138,7 @@ class AdvancedPhysicsScene extends Phaser.Scene {
 
     // Anclar el primer eslabón
     const anchor = this.matter.add.image(600, 120, 'particle', null, { isStatic: true });
-    anchor.setScale(6);
+  anchor.setScale(0.05);
     anchor.setTint(0x666666);
     this.matter.add.constraint(anchor, chainObjects[0], 30, 0.9);
   }
@@ -305,7 +307,7 @@ class AdvancedPhysicsScene extends Phaser.Scene {
           restitution: 0.9,
           friction: 0.01
         });
-        newObject.setScale(3);
+  newObject.setScale(0.05);
         newObject.setTint(Phaser.Math.Between(0x0000ff, 0x00ffff));
         break;
       case 1: // Cubo
@@ -314,7 +316,7 @@ class AdvancedPhysicsScene extends Phaser.Scene {
           restitution: 0.3,
           friction: 0.7
         });
-        newObject.setScale(2);
+  newObject.setScale(0.05);
         newObject.setTint(Phaser.Math.Between(0xff0000, 0xff9999));
         break;
       case 2: // Triángulo
@@ -323,7 +325,7 @@ class AdvancedPhysicsScene extends Phaser.Scene {
           restitution: 0.6,
           friction: 0.3
         });
-        newObject.setScale(1.5);
+  newObject.setScale(0.05);
         newObject.setTint(Phaser.Math.Between(0x00ff00, 0x99ff99));
         break;
     }

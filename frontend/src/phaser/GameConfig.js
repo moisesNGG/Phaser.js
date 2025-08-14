@@ -15,8 +15,8 @@ import SpaceShooterScene from './scenes/SpaceShooterScene';
 // Configuración base para todas las demos
 export const DEMO_CONFIG = {
   type: Phaser.CANVAS, // Force Canvas rendering to avoid WebGL conflicts
-  width: 800,
-  height: 600,
+  width: '100%',
+  height: '100%',
   parent: null, // Se establecerá dinámicamente
   physics: {
     default: 'arcade',
@@ -92,10 +92,25 @@ export const createDemoConfig = (sceneName, parentElementId) => {
     return null;
   }
 
+  // Si la escena es AdvancedPhysicsScene, usar Matter.js
+  const isAdvancedPhysics = sceneName === 'AdvancedPhysicsScene';
   return {
     ...DEMO_CONFIG,
     parent: parentElementId,
-    scene: SceneClass
+    scene: SceneClass,
+    physics: isAdvancedPhysics
+      ? {
+          default: 'matter',
+          matter: {
+            debug: false,
+            gravity: { y: 0.8 }
+          }
+        }
+      : DEMO_CONFIG.physics,
+    scale: {
+      mode: Phaser.Scale.RESIZE,
+      autoCenter: Phaser.Scale.CENTER_BOTH
+    }
   };
 };
 

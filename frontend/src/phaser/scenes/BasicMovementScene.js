@@ -15,34 +15,37 @@ class BasicMovementScene extends Phaser.Scene {
   }
 
   create() {
+    // Obtener tamaño dinámico
+    const w = this.sys.game.scale.width;
+    const h = this.sys.game.scale.height;
+
     // Fondo
-    this.add.image(400, 300, 'starfield');
+    this.add.image(w / 2, h / 2, 'starfield').setDisplaySize(w, h);
 
     // Título
-    this.add.text(400, 50, 'Demo: Movimiento Básico', {
+    this.add.text(w / 2, h * 0.08, 'Demo: Movimiento Básico', {
       fontSize: '24px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
     // Crear jugador
-    this.player = this.add.image(400, 300, 'player');
-    this.player.setScale(2);
+    this.player = this.add.image(w / 2, h / 2, 'player');
+    this.player.setScale(0.05);
 
     // Configurar controles
     this.cursors = this.input.keyboard.createCursorKeys();
-    
     // Controles adicionales (WASD)
     this.wasd = this.input.keyboard.addKeys('W,S,A,D');
 
     // Instrucciones
-    this.add.text(400, 500, 'Usa las flechas o WASD para mover la nave', {
+    this.add.text(w / 2, h * 0.92, 'Usa las flechas o WASD para mover la nave', {
       fontSize: '16px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
-    this.add.text(400, 525, 'El movimiento se calcula en tiempo real usando update()', {
+    this.add.text(w / 2, h * 0.96, 'El movimiento se calcula en tiempo real usando update()', {
       fontSize: '14px',
       fontFamily: 'Arial',
       fill: '#cccccc'
@@ -56,15 +59,21 @@ class BasicMovementScene extends Phaser.Scene {
     });
 
     // Crear límites visuales
-    this.createBounds();
+    this.createBounds(w, h);
   }
 
   createBounds() {
+    // Usar proporciones para los límites
+    const w = this.sys.game.scale.width;
+    const h = this.sys.game.scale.height;
+    const marginX = w * 0.07;
+    const marginY = h * 0.18;
+    const areaW = w - marginX * 2;
+    const areaH = h - marginY * 2;
     const graphics = this.add.graphics();
     graphics.lineStyle(2, 0xff0000);
-    graphics.strokeRect(50, 100, 700, 400);
-    
-    this.add.text(400, 85, 'Área de movimiento', {
+    graphics.strokeRect(marginX, marginY, areaW, areaH);
+    this.add.text(w / 2, marginY - 15, 'Área de movimiento', {
       fontSize: '12px',
       fontFamily: 'Arial',
       fill: '#ff0000'
@@ -98,9 +107,15 @@ class BasicMovementScene extends Phaser.Scene {
     this.player.x += velocityX * deltaTime;
     this.player.y += velocityY * deltaTime;
 
-    // Mantener el jugador dentro de los límites
-    this.player.x = Phaser.Math.Clamp(this.player.x, 50, 750);
-    this.player.y = Phaser.Math.Clamp(this.player.y, 100, 500);
+  // Mantener el jugador dentro de los límites dinámicos
+  const w = this.sys.game.scale.width;
+  const h = this.sys.game.scale.height;
+  const marginX = w * 0.07;
+  const marginY = h * 0.18;
+  const areaW = w - marginX * 2;
+  const areaH = h - marginY * 2;
+  this.player.x = Phaser.Math.Clamp(this.player.x, marginX, marginX + areaW);
+  this.player.y = Phaser.Math.Clamp(this.player.y, marginY, marginY + areaH);
 
     // Actualizar información de posición
     this.positionText.setText(`Posición: (${Math.round(this.player.x)}, ${Math.round(this.player.y)})`);

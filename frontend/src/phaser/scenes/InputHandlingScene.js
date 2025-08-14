@@ -15,11 +15,13 @@ class InputHandlingScene extends Phaser.Scene {
   }
 
   create() {
-    // Fondo
-    this.add.image(400, 300, 'starfield');
+    // Fondo y dimensiones dinámicas
+    const w = this.sys.game.scale.width;
+    const h = this.sys.game.scale.height;
+    this.add.image(w / 2, h / 2, 'starfield').setDisplaySize(w, h);
 
     // Título
-    this.add.text(400, 50, 'Demo: Manejo de Entrada', {
+    this.add.text(w / 2, h * 0.08, 'Demo: Manejo de Entrada', {
       fontSize: '24px',
       fontFamily: 'Arial',
       fill: '#ffffff'
@@ -57,29 +59,31 @@ class InputHandlingScene extends Phaser.Scene {
     });
 
     // Instrucciones
-    this.add.text(400, 450, 'Haz click en cualquier lugar para crear efectos', {
+    this.add.text(w / 2, h * 0.85, 'Haz click en cualquier lugar para crear efectos', {
       fontSize: '16px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
-    this.add.text(400, 475, 'Presiona cualquier tecla para registrar la entrada', {
+    this.add.text(w / 2, h * 0.90, 'Presiona cualquier tecla para registrar la entrada', {
       fontSize: '14px',
       fontFamily: 'Arial',
       fill: '#cccccc'
     }).setOrigin(0.5);
 
-    this.add.text(400, 500, 'Teclas especiales: ESPACIO, ENTER, ESC', {
+    this.add.text(w / 2, h * 0.95, 'Teclas especiales: ESPACIO, ENTER, ESC', {
       fontSize: '14px',
       fontFamily: 'Arial',
       fill: '#cccccc'
     }).setOrigin(0.5);
 
     // Área interactiva visual
-    const interactiveArea = this.add.rectangle(400, 300, 600, 200, 0x0066cc, 0.1);
+    const areaW = w * 0.75;
+    const areaH = h * 0.28;
+    const interactiveArea = this.add.rectangle(w / 2, h / 2, areaW, areaH, 0x0066cc, 0.1);
     interactiveArea.setStrokeStyle(2, 0x0099ff);
 
-    this.add.text(400, 200, 'Área Interactiva', {
+    this.add.text(w / 2, h / 2 - areaH / 2 + 20, 'Área Interactiva', {
       fontSize: '18px',
       fontFamily: 'Arial',
       fill: '#0099ff'

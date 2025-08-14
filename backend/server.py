@@ -38,7 +38,7 @@ api_router.include_router(api_routes)
 app.include_router(api_router)
 
 # Serve static files (game assets)
-app.mount("/static", StaticFiles(directory="/app/frontend/public"), name="static")
+app.mount("/static", StaticFiles(directory=str(ROOT_DIR.parent / "frontend" / "public")), name="static")
 
 app.add_middleware(
     CORSMiddleware,

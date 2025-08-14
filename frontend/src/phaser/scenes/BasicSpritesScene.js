@@ -19,53 +19,57 @@ class BasicSpritesScene extends Phaser.Scene {
   }
 
   create() {
+    // Obtener tamaño dinámico
+    const w = this.sys.game.scale.width;
+    const h = this.sys.game.scale.height;
+
     // Fondo de estrellas
-    this.add.image(400, 300, 'starfield');
+    this.add.image(w / 2, h / 2, 'starfield').setDisplaySize(w, h);
 
     // Texto de título
-    this.add.text(400, 50, 'Demo: Sprites Básicos', {
+    this.add.text(w / 2, h * 0.13, 'Demo: Sprites Básicos', {
       fontSize: '24px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
-    // Mostrar diferentes sprites
-    const playerSprite = this.add.image(200, 200, 'player');
-    playerSprite.setScale(2);
+    // Mostrar diferentes sprites con tamaño reducido y centrados
+    const playerSprite = this.add.image(w * 0.3, h * 0.45, 'player');
+    playerSprite.setScale(0.05);
 
-    const enemySprite = this.add.image(400, 200, 'enemy');
-    enemySprite.setScale(2);
+    const enemySprite = this.add.image(w * 0.5, h * 0.45, 'enemy');
+    enemySprite.setScale(0.05);
 
-    const bulletSprite = this.add.image(600, 200, 'bullet');
-    bulletSprite.setScale(3);
+    const bulletSprite = this.add.image(w * 0.7, h * 0.45, 'bullet');
+    bulletSprite.setScale(0.05);
 
     // Agregar etiquetas para cada sprite
-    this.add.text(200, 250, 'Jugador', {
+    this.add.text(w * 0.3, h * 0.60, 'Jugador', {
       fontSize: '16px',
       fontFamily: 'Arial',
       fill: '#00ff00'
     }).setOrigin(0.5);
 
-    this.add.text(400, 250, 'Enemigo', {
+    this.add.text(w * 0.5, h * 0.60, 'Enemigo', {
       fontSize: '16px',
       fontFamily: 'Arial',
       fill: '#ff0000'
     }).setOrigin(0.5);
 
-    this.add.text(600, 250, 'Bala', {
+    this.add.text(w * 0.7, h * 0.60, 'Bala', {
       fontSize: '16px',
       fontFamily: 'Arial',
       fill: '#ffff00'
     }).setOrigin(0.5);
 
     // Información sobre la implementación
-    this.add.text(400, 350, 'Los sprites son las imágenes básicas del juego', {
+    this.add.text(w / 2, h * 0.75, 'Los sprites son las imágenes básicas del juego', {
       fontSize: '18px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
-    this.add.text(400, 380, 'Se cargan en preload() y se muestran con add.image()', {
+    this.add.text(w / 2, h * 0.80, 'Se cargan en preload() y se muestran con add.image()', {
       fontSize: '14px',
       fontFamily: 'Arial',
       fill: '#cccccc'
@@ -81,7 +85,7 @@ class BasicSpritesScene extends Phaser.Scene {
     });
 
     // Instrucciones
-    this.add.text(400, 550, 'Los sprites rotan automáticamente para demostrar transformaciones', {
+    this.add.text(w / 2, h * 0.96, 'Los sprites rotan automáticamente para demostrar transformaciones', {
       fontSize: '12px',
       fontFamily: 'Arial',
       fill: '#888888'

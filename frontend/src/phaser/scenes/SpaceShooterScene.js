@@ -86,10 +86,10 @@ class SpaceShooterScene extends Phaser.Scene {
     // Create starfield background
     this.add.image(400, 300, 'starfield');
     
-    // Create player
-    this.player = this.physics.add.sprite(400, 500, 'detailedPlayer');
-    this.player.setCollideWorldBounds(true);
-    this.player.setScale(1.5);
+  // Create player
+  this.player = this.physics.add.sprite(400, 500, 'detailedPlayer');
+  this.player.setCollideWorldBounds(true);
+  this.player.setScale(1.2); // Grande pero proporcional
     
     // Create groups
     this.bullets = this.physics.add.group({
@@ -247,7 +247,7 @@ class SpaceShooterScene extends Phaser.Scene {
       bullet.setVisible(true);
       bullet.setPosition(this.player.x, this.player.y - 20);
       bullet.setVelocity(0, -this.bulletSpeed);
-      bullet.setScale(2);
+      bullet.setScale(0.05); // Tamaño reducido para que no se vea enorme
       
       // Play shoot sound
       if (this.shootSound) {
@@ -277,7 +277,7 @@ class SpaceShooterScene extends Phaser.Scene {
       Phaser.Math.Between(-50, 50), 
       this.enemySpeed + (this.level * 20)
     );
-    enemy.setScale(1.5);
+  enemy.setScale(0.1); // Más pequeño y visible
     enemy.setTint(Phaser.Math.Between(0xff0000, 0xff9999));
   }
 
@@ -288,7 +288,7 @@ class SpaceShooterScene extends Phaser.Scene {
       Phaser.Math.Between(-30, 30), 
       this.asteroidSpeed + (this.level * 10)
     );
-    asteroid.setScale(Phaser.Math.FloatBetween(0.8, 1.5));
+  asteroid.setScale(Phaser.Math.FloatBetween(0.3, 0.7)); // Más pequeño
     asteroid.setAngularVelocity(Phaser.Math.Between(-100, 100));
     asteroid.setTint(Phaser.Math.Between(0x8B4513, 0xD2691E));
   }
@@ -367,8 +367,13 @@ class SpaceShooterScene extends Phaser.Scene {
   }
 
   createExplosion(x, y, color) {
-    this.particles.setTint(color);
-    this.particles.explode(15, x, y);
+    // Emitir partículas de explosión con color personalizado
+    if (this.particles.emitters && this.particles.emitters.list.length > 0) {
+      this.particles.emitters.list[0].setTint(color);
+      this.particles.emitters.list[0].explode(15, x, y);
+    } else {
+      this.particles.emitParticleAt(x, y, 15);
+    }
   }
 
   cleanupObjects() {

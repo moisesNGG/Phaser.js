@@ -8,6 +8,7 @@ import { createDemoConfig } from '../phaser/GameConfig';
 
 const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) => {
   const [runningDemos, setRunningDemos] = useState({});
+  const [loadingDemo, setLoadingDemo] = useState(null);
   const demoRefs = useRef({});
   const mountedRef = useRef(true);
 
@@ -54,10 +55,10 @@ const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) =
   };
 
   const handleDemoPlay = (demo) => {
-    if (!mountedRef.current) return;
-    
-    const demoId = demo.id;
-    const sceneName = getSceneNameFromDemo(demo);
+  if (!mountedRef.current) return;
+  const demoId = demo.id;
+  const sceneName = getSceneNameFromDemo(demo);
+  setLoadingDemo(demoId);
     
     if (runningDemos[demoId]) {
       // Detener demo
@@ -107,35 +108,26 @@ const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) =
       // Wait a moment for cleanup before starting new demo
       setTimeout(() => {
         if (!mountedRef.current) return;
-        
         // Iniciar demo
         const containerElement = demoRefs.current[demoId];
         if (containerElement && sceneName && mountedRef.current) {
           try {
             // Clear container
             containerElement.innerHTML = '';
-            
             const config = createDemoConfig(sceneName, null);
             if (config) {
               config.parent = containerElement;
-              config.width = Math.min(containerElement.clientWidth, 400);
-              config.height = Math.min(containerElement.clientHeight, 300);
-              
+              config.width = containerElement.clientWidth;
+              config.height = containerElement.clientHeight;
               // Enhanced error handling and WebGL context management
               config.callbacks = {
                 ...config.callbacks,
                 postBoot: function(game) {
                   console.log(`Demo ${demoId} loaded successfully`);
-                  // Ensure WebGL context is properly initialized
-                  if (game.renderer && game.renderer.gl) {
-                    console.log(`WebGL context active for demo ${demoId}`);
-                  }
-                  // Register in global registry
                   window.phaserDemoInstances[demoId] = game;
+                  setLoadingDemo(null); // Ocultar loading cuando termina
                 }
               };
-              
-              // Add WebGL context loss recovery
               config.callbacks.preBoot = function(game) {
                 if (game.canvas) {
                   game.canvas.addEventListener('webglcontextlost', function(event) {
@@ -147,9 +139,7 @@ const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) =
                   });
                 }
               };
-              
               const game = new Phaser.Game(config);
-              
               if (mountedRef.current) {
                 setRunningDemos(prev => ({
                   ...prev,
@@ -159,6 +149,7 @@ const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) =
             }
           } catch (error) {
             console.error(`Error starting demo ${demoId}:`, error);
+            setLoadingDemo(null);
           }
         }
       }, 100); // Small delay to ensure cleanup
@@ -213,7 +204,7 @@ const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) =
         <p className="text-gray-400">{description}</p>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div className="grid grid-cols-1 gap-8 max-w-2xl mx-auto">
         {demos.map((demo, index) => (
           <Card key={index} className={`bg-black/40 backdrop-blur-sm ${colorClasses.border} hover:bg-black/50 transition-all duration-300`}>
             <CardHeader>
@@ -229,11 +220,16 @@ const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) =
               <div className="aspect-video bg-black/60 rounded-lg mb-4 flex items-center justify-center relative overflow-hidden">
                 <div 
                   ref={el => demoRefs.current[demo.id] = el}
-                  className="w-full h-full"
-                  style={{ display: runningDemos[demo.id] ? 'block' : 'none' }}
+                  className="w-full h-full min-h-[200px] min-w-[200px] aspect-video relative phaser-canvas-container"
+                  style={{ visibility: runningDemos[demo.id] ? 'visible' : 'hidden', position: 'relative' }}
                 />
-                
-                {!runningDemos[demo.id] && (
+                {loadingDemo === demo.id && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 z-10">
+                    <div className={`animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-cyan-400 mb-2`}></div>
+                    <span className="text-cyan-300">Cargando demo...</span>
+                  </div>
+                )}
+                {!runningDemos[demo.id] && loadingDemo !== demo.id && (
                   <div className="text-center">
                     <div className={`w-16 h-16 bg-gradient-to-br ${colorClasses.gradient} rounded-full flex items-center justify-center mb-2 mx-auto opacity-60`}>
                       <Play className="w-8 h-8 text-white ml-1" />

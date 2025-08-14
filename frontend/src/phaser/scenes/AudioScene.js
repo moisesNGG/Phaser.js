@@ -12,20 +12,30 @@ class AudioScene extends Phaser.Scene {
   }
 
   preload() {
-    this.assetLoader = new AssetLoader(this);
-    this.assetLoader.loadAdvancedAssets();
+  this.assetLoader = new AssetLoader(this);
+  this.assetLoader.loadAdvancedAssets();
+
+  // Cargar sonidos reales
+  this.load.audio('shoot', 'assets/sounds/shoot.mp3');
+  this.load.audio('explosion', 'assets/sounds/explosion.mp3');
+  this.load.audio('powerup', 'assets/sounds/powerup.mp3');
+  // Si tienes un sonido de ambiente real, ponlo aquí. Si no, usa shoot como placeholder.
+  this.load.audio('ambient', 'assets/sounds/shoot.mp3');
+  this.load.audio('bgMusic', 'assets/music/space-theme.mp3');
   }
 
   create() {
-    // Fondo
-    this.add.image(400, 300, 'starfield');
+    // Fondo y dimensiones dinámicas
+    const w = this.sys.game.scale.width;
+    const h = this.sys.game.scale.height;
+    this.add.image(w / 2, h / 2, 'starfield').setDisplaySize(w, h);
 
     // Título
-    this.add.text(400, 50, 'Demo: Sistema de Audio', {
+    this.add.text(w / 2, 50, 'Demo: Sistema de Audio', {
       fontSize: '24px',
       fontFamily: 'Arial',
       fill: '#ffffff'
-    }).setOrigin(0.5);
+    }).setOrigin(0.5, 0);
 
     // Inicializar sonidos (mock objects con efectos visuales)
     this.initializeSounds();
@@ -37,13 +47,13 @@ class AudioScene extends Phaser.Scene {
     this.createAudioControls();
 
     // Información
-    this.add.text(400, 450, 'Haz clic en los botones para reproducir diferentes efectos de sonido', {
+    this.add.text(w / 2, h * 0.92, 'Haz clic en los botones para reproducir diferentes efectos de sonido', {
       fontSize: '16px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
-    this.add.text(400, 475, 'En una implementación real, aquí se cargarían archivos de audio WAV/MP3', {
+    this.add.text(w / 2, h * 0.96, 'En una implementación real, aquí se cargarían archivos de audio WAV/MP3', {
       fontSize: '14px',
       fontFamily: 'Arial',
       fill: '#cccccc'
@@ -113,16 +123,17 @@ class AudioScene extends Phaser.Scene {
   }
 
   createAudioControls() {
-    const buttonY = 380;
-    const buttonSpacing = 120;
+    const w = this.sys.game.scale.width;
+    const h = this.sys.game.scale.height;
+    const buttonY = h * 0.7;
+    const buttonSpacing = w / 5;
     let buttonIndex = 0;
 
     // Botones para cada efecto de sonido
     Object.entries(this.sounds).forEach(([key, sound]) => {
-      const x = 200 + buttonIndex * buttonSpacing;
-      
+      const x = w * (0.2 + 0.2 * buttonIndex);
       // Botón
-      const button = this.add.rectangle(x, buttonY, 100, 40, sound.color, 0.7)
+      const button = this.add.rectangle(x, buttonY, w * 0.13, h * 0.07, sound.color, 0.7)
         .setInteractive()
         .on('pointerdown', () => this.playSound(key))
         .on('pointerover', () => button.setAlpha(0.9))
@@ -130,7 +141,7 @@ class AudioScene extends Phaser.Scene {
 
       // Texto del botón
       this.add.text(x, buttonY, sound.name, {
-        fontSize: '12px',
+        fontSize: Math.round(h * 0.025) + 'px',
         fontFamily: 'Arial',
         fill: '#ffffff'
       }).setOrigin(0.5);
@@ -139,33 +150,33 @@ class AudioScene extends Phaser.Scene {
     });
 
     // Botón de música
-    this.musicButton = this.add.rectangle(400, 420, 150, 40, this.music.color, 0.7)
+    this.musicButton = this.add.rectangle(w / 2, buttonY + h * 0.1, w * 0.22, h * 0.07, this.music.color, 0.7)
       .setInteractive()
       .on('pointerdown', () => this.toggleMusic())
       .on('pointerover', () => this.musicButton.setAlpha(0.9))
       .on('pointerout', () => this.musicButton.setAlpha(0.7));
 
-    this.musicButtonText = this.add.text(400, 420, 'Reproducir Música', {
-      fontSize: '14px',
+    this.musicButtonText = this.add.text(w / 2, buttonY + h * 0.1, 'Reproducir Música', {
+      fontSize: Math.round(h * 0.03) + 'px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
     // Control de volumen
-    this.add.text(400, 500, 'Volumen Master:', {
-      fontSize: '16px',
+    this.add.text(w / 2, buttonY + h * 0.18, 'Volumen Master:', {
+      fontSize: Math.round(h * 0.025) + 'px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
-    this.volumeBar = this.add.rectangle(400, 525, 200, 20, 0x333333)
+    this.volumeBar = this.add.rectangle(w / 2, buttonY + h * 0.22, w * 0.3, h * 0.03, 0x333333)
       .setInteractive()
       .on('pointerdown', (pointer) => this.setVolume(pointer));
 
-    this.volumeIndicator = this.add.rectangle(300, 525, 100, 20, 0x00ff00);
+    this.volumeIndicator = this.add.rectangle(w * 0.35, buttonY + h * 0.22, w * 0.15, h * 0.03, 0x00ff00);
 
-    this.volumeText = this.add.text(400, 550, `${Math.round(this.masterVolume * 100)}%`, {
-      fontSize: '14px',
+    this.volumeText = this.add.text(w / 2, buttonY + h * 0.26, `${Math.round(this.masterVolume * 100)}%`, {
+      fontSize: Math.round(h * 0.02) + 'px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
@@ -175,34 +186,40 @@ class AudioScene extends Phaser.Scene {
     const sound = this.sounds[soundKey];
     if (!sound) return;
 
-    // Simular reproducción de sonido con efectos visuales
+    // Asegura que el sonido está cargado y disponible
+    if (!this.sound.get(soundKey)) {
+      // Si no está en el cache, lo agrega
+      this.sound.add(soundKey);
+    }
+    // Reproducir sonido real, permitiendo múltiples instancias
+    this.sound.play(soundKey, { volume: sound.volume * this.masterVolume, allowMultiple: true });
+
+    // Efecto visual
     this.createSoundEffect(sound);
-    
     // Actualizar visualizador
     this.updateVisualizer(sound.frequency);
-
-    // En una implementación real:
-    // this.sound.play(soundKey, { volume: sound.volume * this.masterVolume });
   }
 
   toggleMusic() {
     this.musicPlaying = !this.musicPlaying;
-    
     if (this.musicPlaying) {
       this.musicButtonText.setText('Detener Música');
       this.startMusicVisualization();
-      // En implementación real: this.sound.play('bgMusic', { loop: true, volume: this.music.volume * this.masterVolume });
+      if (!this.bgMusic) {
+        this.bgMusic = this.sound.add('bgMusic', { loop: true, volume: this.music.volume * this.masterVolume });
+      }
+      this.bgMusic.play();
     } else {
       this.musicButtonText.setText('Reproducir Música');
       this.stopMusicVisualization();
-      // En implementación real: this.sound.stopByKey('bgMusic');
+      if (this.bgMusic) this.bgMusic.stop();
     }
   }
 
   createSoundEffect(sound) {
     // Crear efecto visual que representa el sonido
     const effectSprite = this.add.image(400, 200, 'particle');
-    effectSprite.setScale(10);
+    effectSprite.setScale(0.05);
     effectSprite.setTint(sound.color);
     effectSprite.setAlpha(0.8);
 
@@ -267,12 +284,18 @@ class AudioScene extends Phaser.Scene {
   }
 
   setVolume(pointer) {
-    const localX = pointer.x - 300; // Ajustar por posición del control
-    this.masterVolume = Phaser.Math.Clamp(localX / 200, 0, 1);
-    
-    // Actualizar indicador visual
-    this.volumeIndicator.width = this.masterVolume * 200;
-    this.volumeText.setText(`${Math.round(this.masterVolume * 100)}%`);
+  const w = this.sys.game.scale.width;
+  const barX = w / 2 - (w * 0.3) / 2;
+  const localX = pointer.x - barX;
+  this.masterVolume = Phaser.Math.Clamp(localX / (w * 0.3), 0, 1);
+
+  // Actualizar indicador visual
+  this.volumeIndicator.width = this.masterVolume * (w * 0.3);
+  this.volumeText.setText(`${Math.round(this.masterVolume * 100)}%`);
+
+  // Actualizar volumen global
+  this.sound.volume = this.masterVolume;
+  if (this.bgMusic) this.bgMusic.setVolume(this.music.volume * this.masterVolume);
   }
 
   createVisualEffects() {

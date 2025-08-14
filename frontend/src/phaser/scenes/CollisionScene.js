@@ -18,21 +18,23 @@ class CollisionScene extends Phaser.Scene {
   }
 
   create() {
-    // Fondo
-    this.add.image(400, 300, 'starfield');
+    // Fondo y dimensiones dinámicas
+    const w = this.sys.game.scale.width;
+    const h = this.sys.game.scale.height;
+    this.add.image(w / 2, h / 2, 'starfield').setDisplaySize(w, h);
 
     // Título
-    this.add.text(400, 50, 'Demo: Detección de Colisiones', {
+    this.add.text(w / 2, 50, 'Demo: Detección de Colisiones', {
       fontSize: '24px',
       fontFamily: 'Arial',
       fill: '#ffffff'
-    }).setOrigin(0.5);
+    }).setOrigin(0.5, 0);
 
     // Crear jugador controlable
-    this.player = this.physics.add.sprite(400, 500, 'detailedPlayer');
-    this.player.setCollideWorldBounds(true);
-    this.player.setScale(2);
-    this.player.setBounce(0.2);
+  this.player = this.physics.add.sprite(w / 2, h * 0.8, 'detailedPlayer');
+  this.player.setCollideWorldBounds(true);
+  this.player.setScale(0.5);
+  this.player.setBounce(0.2);
 
     // Crear grupos de objetos
     this.movingObjects = this.physics.add.group();
@@ -40,18 +42,18 @@ class CollisionScene extends Phaser.Scene {
 
     // Crear objetos estáticos
     for (let i = 0; i < 6; i++) {
-      const x = 100 + i * 120;
-      const y = 200;
+      const x = w * (0.1 + 0.13 * i);
+      const y = h * 0.3;
       const staticObj = this.staticObjects.create(x, y, 'asteroid');
       staticObj.setImmovable(true);
-      staticObj.setScale(1.5);
+      staticObj.setScale(0.05);
       staticObj.setTint(0x00ff00);
     }
 
     // Crear objetos que se mueven
     for (let i = 0; i < 4; i++) {
-      const x = Phaser.Math.Between(100, 700);
-      const y = Phaser.Math.Between(300, 400);
+      const x = Phaser.Math.Between(w * 0.15, w * 0.85);
+      const y = Phaser.Math.Between(h * 0.45, h * 0.65);
       const movingObj = this.movingObjects.create(x, y, 'enemy');
       movingObj.setVelocity(
         Phaser.Math.Between(-100, 100),
@@ -59,7 +61,7 @@ class CollisionScene extends Phaser.Scene {
       );
       movingObj.setBounce(1);
       movingObj.setCollideWorldBounds(true);
-      movingObj.setScale(1.5);
+      movingObj.setScale(0.05);
       movingObj.setTint(0xff6600);
     }
 
@@ -78,13 +80,13 @@ class CollisionScene extends Phaser.Scene {
     });
 
     // Instrucciones
-    this.add.text(400, 450, 'Usa las flechas o WASD para mover la nave', {
+    this.add.text(w / 2, h * 0.92, 'Usa las flechas o WASD para mover la nave', {
       fontSize: '16px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
-    this.add.text(400, 475, 'Verde: Objetos estáticos • Naranja: Objetos móviles', {
+    this.add.text(w / 2, h * 0.96, 'Verde: Objetos estáticos • Naranja: Objetos móviles', {
       fontSize: '14px',
       fontFamily: 'Arial',
       fill: '#cccccc'
@@ -95,9 +97,9 @@ class CollisionScene extends Phaser.Scene {
 
     // Partículas para efectos de colisión
     this.collisionParticles = this.add.particles(0, 0, 'particle', {
-      speed: { min: 50, max: 150 },
-      scale: { start: 2, end: 0 },
-      lifespan: 300,
+      speed: { min: 20, max: 60 },
+      scale: { start: 0.3, end: 0 },
+      lifespan: 250,
       blendMode: 'ADD'
     });
     this.collisionParticles.stop();
@@ -131,9 +133,19 @@ class CollisionScene extends Phaser.Scene {
     this.collisionCount++;
     this.collisionText.setText(`Colisiones: ${this.collisionCount}`);
 
-    // Efecto visual de colisión
-    this.collisionParticles.setTint(type === 'estático' ? 0x00ff00 : 0xff6600);
-    this.collisionParticles.explode(10, object.x, object.y);
+  // Efecto visual de colisión (color con partículas personalizadas)
+  const color = type === 'estático' ? 0x00ff00 : 0xff6600;
+  this.collisionParticles.explode(4, object.x, object.y);
+  // Dibuja una X sobre la hitbox
+  const g = this.add.graphics();
+  g.lineStyle(2, color, 1);
+  g.beginPath();
+  g.moveTo(object.x - 10, object.y - 10);
+  g.lineTo(object.x + 10, object.y + 10);
+  g.moveTo(object.x + 10, object.y - 10);
+  g.lineTo(object.x - 10, object.y + 10);
+  g.strokePath();
+  this.time.delayedCall(400, () => g.destroy());
 
     // Efecto de destello en el objeto
     object.setTint(0xffffff);

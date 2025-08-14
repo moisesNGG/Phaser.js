@@ -16,38 +16,40 @@ class ParticleScene extends Phaser.Scene {
   }
 
   create() {
-    // Fondo
-    this.add.image(400, 300, 'starfield');
+    // Fondo y dimensiones dinámicas
+    const w = this.sys.game.scale.width;
+    const h = this.sys.game.scale.height;
+    this.add.image(w / 2, h / 2, 'starfield').setDisplaySize(w, h);
 
     // Título
-    this.add.text(400, 50, 'Demo: Sistema de Partículas', {
-      fontSize: '24px',
+    this.add.text(w / 2, h * 0.07, 'Demo: Sistema de Partículas', {
+      fontSize: Math.round(h * 0.045) + 'px',
       fontFamily: 'Arial',
       fill: '#ffffff'
-    }).setOrigin(0.5);
+    }).setOrigin(0.5, 0);
 
     // Crear diferentes tipos de emisores de partículas
-    this.createFireworksEmitter();
-    this.createSmokeEmitter();
-    this.createMouseTrailEmitter();
-    this.createExplosionEmitter();
-    this.createRainEmitter();
+    this.createFireworksEmitter(w, h);
+    this.createSmokeEmitter(w, h);
+    this.createMouseTrailEmitter(w, h);
+    this.createExplosionEmitter(w, h);
+    this.createRainEmitter(w, h);
 
     // Configurar interactividad
     this.setupInteractivity();
 
     // Crear controles
-    this.createControls();
+    this.createControls(w, h);
 
     // Instrucciones
-    this.add.text(400, 500, 'Mueve el mouse para crear efectos de partículas • Haz clic para explosiones', {
-      fontSize: '16px',
+    this.add.text(w / 2, h * 0.92, 'Mueve el mouse para crear efectos de partículas • Haz clic para explosiones', {
+      fontSize: Math.round(h * 0.025) + 'px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
-    this.add.text(400, 525, 'Las partículas son ideales para fuego, humo, explosiones y efectos mágicos', {
-      fontSize: '14px',
+    this.add.text(w / 2, h * 0.96, 'Las partículas son ideales para fuego, humo, explosiones y efectos mágicos', {
+      fontSize: Math.round(h * 0.02) + 'px',
       fontFamily: 'Arial',
       fill: '#cccccc'
     }).setOrigin(0.5);
@@ -55,9 +57,12 @@ class ParticleScene extends Phaser.Scene {
 
   createFireworksEmitter() {
     // Emisor de fuegos artificiales
-    this.fireworksEmitter = this.add.particles(150, 200, 'advancedParticle', {
-      speed: { min: 100, max: 200 },
-      scale: { start: 1, end: 0 },
+    const x = arguments[0] ? arguments[0] * 0.18 : 150;
+    const y = arguments[1] ? arguments[1] * 0.32 : 200;
+    const h = arguments[1] || 600;
+    this.fireworksEmitter = this.add.particles(x, y, 'advancedParticle', {
+      speed: { min: h * 0.16, max: h * 0.33 },
+      scale: { start: h * 0.0017, end: 0 },
       tint: [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff],
       lifespan: 1000,
       frequency: 100,
@@ -65,46 +70,48 @@ class ParticleScene extends Phaser.Scene {
       blendMode: 'ADD',
       emitZone: { 
         type: 'edge', 
-        source: new Phaser.Geom.Circle(0, 0, 20),
+        source: new Phaser.Geom.Circle(0, 0, h * 0.033),
         quantity: 5
       }
     });
 
     // Etiqueta
-    this.add.text(150, 250, 'Fuegos Artificiales', {
-      fontSize: '14px',
+    this.add.text(x, y + h * 0.08, 'Fuegos Artificiales', {
+      fontSize: Math.round(h * 0.023) + 'px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
   }
 
   createSmokeEmitter() {
-    // Emisor de humo
-    this.smokeEmitter = this.add.particles(400, 400, 'particle', {
-      speed: { min: 20, max: 60 },
-      scale: { start: 0.5, end: 2 },
+    const w = arguments[0] || 800;
+    const h = arguments[1] || 600;
+    this.smokeEmitter = this.add.particles(w * 0.5, h * 0.67, 'particle', {
+      speed: { min: h * 0.033, max: h * 0.1 },
+      scale: { start: h * 0.001, end: h * 0.0033 },
       tint: [0x666666, 0x999999, 0xaaaaaa],
       alpha: { start: 0.8, end: 0 },
       lifespan: 2000,
       frequency: 50,
       quantity: 2,
-      y: { min: 400, max: 420 },
-      gravityY: -50
+      y: { min: h * 0.67, max: h * 0.7 },
+      gravityY: -h * 0.083
     });
 
     // Etiqueta
-    this.add.text(400, 450, 'Humo', {
-      fontSize: '14px',
+    this.add.text(w * 0.5, h * 0.75, 'Humo', {
+      fontSize: Math.round(h * 0.023) + 'px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
   }
 
   createMouseTrailEmitter() {
+    const h = arguments[1] || 600;
     // Emisor que sigue al mouse
     this.mouseEmitter = this.add.particles(0, 0, 'advancedParticle', {
-      speed: { min: 50, max: 100 },
-      scale: { start: 0.8, end: 0 },
+      speed: { min: h * 0.083, max: h * 0.167 },
+      scale: { start: h * 0.0013, end: 0 },
       tint: 0x00ffff,
       lifespan: 300,
       quantity: 3,
@@ -115,10 +122,11 @@ class ParticleScene extends Phaser.Scene {
   }
 
   createExplosionEmitter() {
+    const h = arguments[1] || 600;
     // Emisor para explosiones
     this.explosionEmitter = this.add.particles(0, 0, 'advancedParticle', {
-      speed: { min: 200, max: 400 },
-      scale: { start: 1.5, end: 0 },
+      speed: { min: h * 0.33, max: h * 0.67 },
+      scale: { start: h * 0.0025, end: 0 },
       tint: [0xff6600, 0xff0000, 0xffff00],
       lifespan: 800,
       quantity: 20,
@@ -128,34 +136,36 @@ class ParticleScene extends Phaser.Scene {
 
     // Emisor secundario para chispas
     this.sparkEmitter = this.add.particles(0, 0, 'particle', {
-      speed: { min: 100, max: 300 },
-      scale: { start: 0.3, end: 0 },
+      speed: { min: h * 0.17, max: h * 0.5 },
+      scale: { start: h * 0.0005, end: 0 },
       tint: 0xffffff,
       lifespan: 1200,
       quantity: 15,
-      gravityY: 200
+      gravityY: h * 0.33
     });
     this.sparkEmitter.stop();
   }
 
   createRainEmitter() {
+    const w = arguments[0] || 800;
+    const h = arguments[1] || 600;
     // Emisor de lluvia
-    this.rainEmitter = this.add.particles(400, -50, 'particle', {
-      speed: { min: 200, max: 300 },
-      scale: { start: 0.2, end: 0.1 },
+    this.rainEmitter = this.add.particles(w * 0.5, -h * 0.08, 'particle', {
+      speed: { min: h * 0.33, max: h * 0.5 },
+      scale: { start: h * 0.00033, end: h * 0.00017 },
       tint: 0x87CEEB,
       alpha: 0.6,
       lifespan: 2000,
       frequency: 20,
       quantity: 3,
-      x: { min: 0, max: 800 },
+      x: { min: 0, max: w },
       angle: { min: 85, max: 95 },
-      gravityY: 100
+      gravityY: h * 0.17
     });
 
     // Etiqueta
-    this.add.text(650, 120, 'Lluvia', {
-      fontSize: '14px',
+    this.add.text(w * 0.81, h * 0.2, 'Lluvia', {
+      fontSize: Math.round(h * 0.023) + 'px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
@@ -211,43 +221,45 @@ class ParticleScene extends Phaser.Scene {
   }
 
   createControls() {
-    const controlsY = 100;
-    
+    const w = arguments[0] || 800;
+    const h = arguments[1] || 600;
+    const controlsY = h * 0.16;
+
     // Botón para cambiar modo de lluvia
-    this.rainButton = this.add.rectangle(650, controlsY, 120, 30, 0x0066cc, 0.7)
+    this.rainButton = this.add.rectangle(w * 0.81, controlsY, w * 0.15, h * 0.05, 0x0066cc, 0.7)
       .setInteractive()
       .on('pointerdown', () => this.toggleRain())
       .on('pointerover', () => this.rainButton.setAlpha(0.9))
       .on('pointerout', () => this.rainButton.setAlpha(0.7));
 
-    this.rainButtonText = this.add.text(650, controlsY, 'Detener Lluvia', {
-      fontSize: '12px',
+    this.rainButtonText = this.add.text(w * 0.81, controlsY, 'Detener Lluvia', {
+      fontSize: Math.round(h * 0.02) + 'px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
     // Botón para cambiar fuegos artificiales
-    this.fireworksButton = this.add.rectangle(150, controlsY, 120, 30, 0xcc0066, 0.7)
+    this.fireworksButton = this.add.rectangle(w * 0.18, controlsY, w * 0.15, h * 0.05, 0xcc0066, 0.7)
       .setInteractive()
       .on('pointerdown', () => this.toggleFireworks())
       .on('pointerover', () => this.fireworksButton.setAlpha(0.9))
       .on('pointerout', () => this.fireworksButton.setAlpha(0.7));
 
-    this.fireworksButtonText = this.add.text(150, controlsY, 'Detener F.A.', {
-      fontSize: '12px',
+    this.fireworksButtonText = this.add.text(w * 0.18, controlsY, 'Detener F.A.', {
+      fontSize: Math.round(h * 0.02) + 'px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
     // Botón para crear efecto mágico
-    this.magicButton = this.add.rectangle(400, controlsY, 120, 30, 0x9900cc, 0.7)
+    this.magicButton = this.add.rectangle(w * 0.5, controlsY, w * 0.18, h * 0.05, 0x9900cc, 0.7)
       .setInteractive()
-      .on('pointerdown', () => this.createMagicEffect())
+      .on('pointerdown', () => this.createMagicEffect(w, h))
       .on('pointerover', () => this.magicButton.setAlpha(0.9))
       .on('pointerout', () => this.magicButton.setAlpha(0.7));
 
-    this.add.text(400, controlsY, 'Efecto Mágico', {
-      fontSize: '12px',
+    this.add.text(w * 0.5, controlsY, 'Efecto Mágico', {
+      fontSize: Math.round(h * 0.02) + 'px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
@@ -274,22 +286,24 @@ class ParticleScene extends Phaser.Scene {
   }
 
   createMagicEffect() {
+    const w = arguments[0] || 800;
+    const h = arguments[1] || 600;
     // Crear múltiples emisores temporales para efecto mágico
     for (let i = 0; i < 5; i++) {
       const angle = (i / 5) * Math.PI * 2;
-      const x = 400 + Math.cos(angle) * 100;
-      const y = 300 + Math.sin(angle) * 100;
+      const x = w * 0.5 + Math.cos(angle) * w * 0.13;
+      const y = h * 0.5 + Math.sin(angle) * h * 0.13;
 
       const magicEmitter = this.add.particles(x, y, 'advancedParticle', {
-        speed: { min: 50, max: 150 },
-        scale: { start: 1, end: 0 },
+        speed: { min: h * 0.083, max: h * 0.25 },
+        scale: { start: h * 0.0017, end: 0 },
         tint: [0xff00ff, 0x00ffff, 0xffff00],
         lifespan: 1500,
         quantity: 10,
         blendMode: 'ADD',
         emitZone: { 
           type: 'edge', 
-          source: new Phaser.Geom.Circle(0, 0, 30),
+          source: new Phaser.Geom.Circle(0, 0, h * 0.05),
           quantity: 10
         }
       });
@@ -303,8 +317,8 @@ class ParticleScene extends Phaser.Scene {
     }
 
     // Crear texto mágico
-    const magicText = this.add.text(400, 300, '✨ MAGIA ✨', {
-      fontSize: '32px',
+    const magicText = this.add.text(w * 0.5, h * 0.5, '✨ MAGIA ✨', {
+      fontSize: Math.round(h * 0.053) + 'px',
       fontFamily: 'Arial',
       fill: '#ff00ff'
     }).setOrigin(0.5);
