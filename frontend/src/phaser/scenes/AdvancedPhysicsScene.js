@@ -462,15 +462,49 @@ class AdvancedPhysicsScene extends Phaser.Scene {
   }
 
   update() {
-    this.updatePhysicsInfo();
-    
-    // Limpiar objetos que hayan caído muy abajo (optimización)
-    this.physicsObjects = this.physicsObjects.filter(obj => {
-      if (obj.body && obj.body.position.y > 700) {
-        obj.destroy();
-        return false;
+    // Si tenemos Matter.js disponible
+    if (this.matter && this.matter.world && this.physicsInfo) {
+      this.updatePhysicsInfo();
+      
+      // Limpiar objetos que hayan caído muy abajo (optimización)
+      this.physicsObjects = this.physicsObjects.filter(obj => {
+        if (obj.body && obj.body.position.y > 700) {
+          obj.destroy();
+          return false;
+        }
+        return true;
+      });
+    } 
+    // Si estamos usando simulación básica
+    else if (this.simulatedObjects) {
+      this.updateBasicSimulation();
+    }
+  }
+
+  updateBasicSimulation() {
+    // Actualizar simulación básica de física
+    this.simulatedObjects.forEach(obj => {
+      // Aplicar gravedad
+      obj.velocityY += 0.5;
+      
+      // Actualizar posición
+      obj.sprite.y += obj.velocityY;
+      
+      // Detectar colisión con el suelo
+      if (obj.sprite.y > 500) {
+        obj.sprite.y = 500;
+        obj.velocityY *= -obj.bounceY;
+        
+        // Reducir velocidad gradualmente
+        if (Math.abs(obj.velocityY) < 1) {
+          obj.velocityY = 0;
+        }
       }
-      return true;
+      
+      // Mantener objetos en pantalla horizontalmente
+      if (obj.sprite.x < 0 || obj.sprite.x > 800) {
+        obj.sprite.x = Phaser.Math.Clamp(obj.sprite.x, 0, 800);
+      }
     });
   }
 }
