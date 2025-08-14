@@ -15,47 +15,102 @@ class AdvancedPhysicsScene extends Phaser.Scene {
   }
 
   create() {
-    // Configurar Matter.js physics
-    this.matter.world.setBounds(0, 0, 800, 600, 32, true, true, false, true);
-    this.matter.world.engine.world.gravity.y = 0.8;
+    // Verificar si Matter.js está disponible
+    if (!this.matter || !this.matter.world) {
+      console.error('Matter.js physics not available. Falling back to basic demo.');
+      this.createFallbackDemo();
+      return;
+    }
 
-    // Fondo
+    try {
+      // Configurar Matter.js physics
+      this.matter.world.setBounds(0, 0, 800, 600, 32, true, true, false, true);
+      this.matter.world.engine.world.gravity.y = 0.8;
+
+      // Fondo
+      this.add.image(400, 300, 'starfield');
+
+      // Título
+      this.add.text(400, 50, 'Demo: Físicas Avanzadas (Matter.js)', {
+        fontSize: '24px',
+        fontFamily: 'Arial',
+        fill: '#ffffff'
+      }).setOrigin(0.5);
+
+      // Crear objetos físicos
+      this.createPhysicsObjects();
+      
+      // Crear plataformas estáticas
+      this.createPlatforms();
+      
+      // Configurar interacción con mouse
+      this.setupMouseInteraction();
+      
+      // Crear controles
+      this.createControls();
+
+      // Instrucciones
+      this.add.text(400, 570, 'Arrastra objetos con el mouse • Usa los controles para cambiar la física', {
+        fontSize: '14px',
+        fontFamily: 'Arial',
+        fill: '#ffffff'
+      }).setOrigin(0.5);
+
+      // Mostrar información de físicas
+      this.physicsInfo = this.add.text(20, 20, '', {
+        fontSize: '12px',
+        fontFamily: 'Arial',
+        fill: '#ffffff'
+      });
+
+      this.updatePhysicsInfo();
+    } catch (error) {
+      console.error('Error creating Matter.js demo:', error);
+      this.createFallbackDemo();
+    }
+  }
+
+  createFallbackDemo() {
+    // Demo alternativo cuando Matter.js no está disponible
     this.add.image(400, 300, 'starfield');
-
-    // Título
-    this.add.text(400, 50, 'Demo: Físicas Avanzadas (Matter.js)', {
+    
+    this.add.text(400, 50, 'Demo: Físicas Avanzadas (Simulación)', {
       fontSize: '24px',
       fontFamily: 'Arial',
       fill: '#ffffff'
     }).setOrigin(0.5);
 
-    // Crear objetos físicos
-    this.createPhysicsObjects();
-    
-    // Crear plataformas estáticas
-    this.createPlatforms();
-    
-    // Configurar interacción con mouse
-    this.setupMouseInteraction();
-    
-    // Crear controles
-    this.createControls();
-
-    // Instrucciones
-    this.add.text(400, 570, 'Arrastra objetos con el mouse • Usa los controles para cambiar la física', {
-      fontSize: '14px',
+    this.add.text(400, 300, 'Demo de físicas avanzadas\n(Matter.js no disponible)', {
+      fontSize: '18px',
       fontFamily: 'Arial',
-      fill: '#ffffff'
+      fill: '#ff6666',
+      align: 'center'
     }).setOrigin(0.5);
 
-    // Mostrar información de físicas
-    this.physicsInfo = this.add.text(20, 20, '', {
-      fontSize: '12px',
-      fontFamily: 'Arial',
-      fill: '#ffffff'
-    });
+    // Crear una simulación básica con sprites simples
+    this.createBasicPhysicsSimulation();
+  }
 
-    this.updatePhysicsInfo();
+  createBasicPhysicsSimulation() {
+    // Simulación básica con sprites que caen
+    this.simulatedObjects = [];
+    
+    for (let i = 0; i < 5; i++) {
+      const obj = this.add.image(150 + i * 100, 100, 'bullet');
+      obj.setScale(3);
+      obj.setTint(Phaser.Math.Between(0x0000ff, 0x00ffff));
+      this.simulatedObjects.push({
+        sprite: obj,
+        velocityY: 0,
+        bounceY: 0.8
+      });
+    }
+
+    this.add.text(400, 450, 'Simulación básica de físicas - los objetos caen por gravedad', {
+      fontSize: '14px',
+      fontFamily: 'Arial',
+      fill: '#cccccc'
+    }).setOrigin(0.5);
   }
 
   createPhysicsObjects() {
