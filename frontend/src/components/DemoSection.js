@@ -156,6 +156,17 @@ const DemoSection = ({ title, description, demos, onPlay, activeDemo, color }) =
                   [demoId]: { game, sceneName }
                 }));
               }
+            } else {
+              console.error(`Failed to create config for demo ${demoId}`);
+              // Create fallback message
+              containerElement.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #ff6666; font-family: Arial;">
+                  <div style="text-align: center;">
+                    <div style="font-size: 16px; margin-bottom: 8px;">⚠️ Error</div>
+                    <div style="font-size: 12px;">No se pudo cargar el demo</div>
+                  </div>
+                </div>
+              `;
             }
           } catch (error) {
             console.error(`Error starting demo ${demoId}:`, error);
