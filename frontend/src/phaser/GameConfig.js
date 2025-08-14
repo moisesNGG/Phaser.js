@@ -92,10 +92,45 @@ export const createDemoConfig = (sceneName, parentElementId) => {
     return null;
   }
 
+  // Configuración específica según el tipo de demo
+  let specificConfig = { ...DEMO_CONFIG };
+  
+  // Para demos avanzados que usan Matter.js, agregar configuración específica
+  if (['AdvancedPhysicsScene', 'ParticleScene', 'LightingScene'].includes(sceneName)) {
+    specificConfig.physics = {
+      default: 'matter',
+      matter: {
+        debug: false,
+        gravity: { y: 0.8 },
+        setBounds: true
+      },
+      arcade: {
+        gravity: { y: 0 },
+        debug: false
+      }
+    };
+  }
+  
   return {
-    ...DEMO_CONFIG,
+    ...specificConfig,
     parent: parentElementId,
-    scene: SceneClass
+    scene: SceneClass,
+    callbacks: {
+      ...specificConfig.callbacks,
+      postBoot: function(game) {
+        console.log(`Demo ${sceneName} loaded successfully with ${game.renderer.type === 1 ? 'Canvas' : 'WebGL'} renderer`);
+        
+        // Asegurar que Matter.js esté disponible para demos avanzados
+        if (['AdvancedPhysicsScene'].includes(sceneName) && game.plugins) {
+          const matterPlugin = game.plugins.get('Matter');
+          if (matterPlugin) {
+            console.log(`Matter.js plugin available for ${sceneName}`);
+          } else {
+            console.warn(`Matter.js plugin not available for ${sceneName}`);
+          }
+        }
+      }
+    }
   };
 };
 
