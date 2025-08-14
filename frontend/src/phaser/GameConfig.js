@@ -26,8 +26,17 @@ export const DEMO_CONFIG = {
     },
     matter: {
       debug: false,
-      gravity: { y: 0 }
+      gravity: { y: 0.8 }
     }
+  },
+  plugins: {
+    scene: [
+      {
+        key: 'Matter',
+        plugin: Phaser.Physics.Matter.MatterPhysics,
+        mapping: 'matter'
+      }
+    ]
   },
   backgroundColor: '#000428',
   scale: {
