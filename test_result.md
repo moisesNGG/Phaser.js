@@ -403,11 +403,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Advanced Phaser Demos"
-  stuck_tasks:
-    - "Advanced Phaser Demos"
+    - "Space Shooter Game"
+  stuck_tasks: []
   test_all: false
-  test_priority: "stuck_first"
+  test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
