@@ -54,28 +54,45 @@ class ParticleScene extends Phaser.Scene {
   }
 
   createFireworksEmitter() {
-    // Emisor de fuegos artificiales
-    this.fireworksEmitter = this.add.particles(150, 200, 'advancedParticle', {
-      speed: { min: 100, max: 200 },
-      scale: { start: 1, end: 0 },
-      tint: [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff],
-      lifespan: 1000,
-      frequency: 100,
-      quantity: 5,
-      blendMode: 'ADD',
-      emitZone: { 
-        type: 'edge', 
-        source: new Phaser.Geom.Circle(0, 0, 20),
-        quantity: 5
-      }
-    });
+    try {
+      // Emisor de fuegos artificiales
+      this.fireworksEmitter = this.add.particles(150, 200, 'advancedParticle', {
+        speed: { min: 100, max: 200 },
+        scale: { start: 1, end: 0 },
+        tint: [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff],
+        lifespan: 1000,
+        frequency: 100,
+        quantity: 5,
+        blendMode: 'ADD',
+        emitZone: { 
+          type: 'edge', 
+          source: new Phaser.Geom.Circle(0, 0, 20),
+          quantity: 5
+        }
+      });
 
-    // Etiqueta
-    this.add.text(150, 250, 'Fuegos Artificiales', {
-      fontSize: '14px',
-      fontFamily: 'Arial',
-      fill: '#ffffff'
-    }).setOrigin(0.5);
+      // Etiqueta
+      this.add.text(150, 250, 'Fuegos Artificiales', {
+        fontSize: '14px',
+        fontFamily: 'Arial',
+        fill: '#ffffff'
+      }).setOrigin(0.5);
+    } catch (error) {
+      console.error('Error creating fireworks emitter:', error);
+      // Fallback simple
+      this.add.text(150, 200, '🎆', {
+        fontSize: '32px',
+        fontFamily: 'Arial',
+        fill: '#ffffff'
+      }).setOrigin(0.5);
+      
+      this.add.text(150, 250, 'Fuegos Artificiales\n(Simulado)', {
+        fontSize: '14px',
+        fontFamily: 'Arial',
+        fill: '#ffffff',
+        align: 'center'
+      }).setOrigin(0.5);
+    }
   }
 
   createSmokeEmitter() {
