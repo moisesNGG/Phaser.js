@@ -401,10 +401,8 @@ metadata:
 test_plan:
   current_focus:
     - "Advanced Phaser Demos"
-    - "Space Shooter Game"
   stuck_tasks:
     - "Advanced Phaser Demos"
-    - "Space Shooter Game"
   test_all: false
   test_priority: "stuck_first"
 
